@@ -30,17 +30,17 @@ public class Configuration {
 
         //Get the common configuration
         Scanner sc= new Scanner(new FileReader(commonConfig));
-        this.numOfPreferredNeighbors = Integer.parseInt(sc.nextLine().trim());
-        this.unchokingInterval = Integer.parseInt(sc.nextLine().trim());
-        this.optUnchokingInterval = Integer.parseInt(sc.nextLine().trim());
-        this.fileName = sc.nextLine().trim();
-        this.fileSize = Integer.parseInt(sc.nextLine().trim());
-        this.pieceSize = Integer.parseInt(sc.nextLine().trim());
+        Configuration.numOfPreferredNeighbors = Integer.parseInt(sc.nextLine().trim());
+        Configuration.unchokingInterval = Integer.parseInt(sc.nextLine().trim());
+        Configuration.optUnchokingInterval = Integer.parseInt(sc.nextLine().trim());
+        Configuration.fileName = sc.nextLine().trim();
+        Configuration.fileSize = Integer.parseInt(sc.nextLine().trim());
+        Configuration.pieceSize = Integer.parseInt(sc.nextLine().trim());
 
-        if (this.fileSize%this.pieceSize == 0) {
-            this.numPieces = this.fileSize/this.pieceSize;
+        if (Configuration.fileSize%Configuration.pieceSize == 0) {
+            Configuration.numPieces = Configuration.fileSize/Configuration.pieceSize;
         } else {
-            this.numPieces = this.fileSize/this.pieceSize + 1;
+            Configuration.numPieces = Configuration.fileSize/Configuration.pieceSize + 1;
         }
 
         sc.close();
