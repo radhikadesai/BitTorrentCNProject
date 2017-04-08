@@ -7,44 +7,53 @@ import java.util.Scanner;
 
 public class Configuration {
 
-    //CommonProperties
-    public static int numOfPreferredNeighbors;
-    public static int unchokingInterval;
-    public static int optUnchokingInterval;
-    public static String fileName;
-    public static int fileSize;
-    public static int pieceSize;
-    public static int numPieces;
-
-    //PeerInformation
-//    private final ArrayList<Integer> IDs;
-//    private final ArrayList<String> addresses;
-//    private final ArrayList<Integer> downloadPorts;
-//    private final ArrayList<Boolean> flags;
-//    private final int numPeers;
-//    private final ArrayList<Integer> uploadPorts;
-//    private final ArrayList<Integer> havePorts;
     public static ArrayList<PeerInformation> peers= new ArrayList<PeerInformation>();
+    public static CommonCfg CommonProperties = new CommonCfg();
 
     public Configuration(String commonConfig, String peersInfoConfig) throws FileNotFoundException {
 
         //Get the common configuration
-//        Scanner sc= new Scanner(new FileReader(commonConfig));
-//        Configuration.numOfPreferredNeighbors = Integer.parseInt(sc.nextLine().trim());
-//        Configuration.unchokingInterval = Integer.parseInt(sc.nextLine().trim());
-//        Configuration.optUnchokingInterval = Integer.parseInt(sc.nextLine().trim());
-//        Configuration.fileName = sc.nextLine().trim();
-//        Configuration.fileSize = Integer.parseInt(sc.nextLine().trim());
-//        Configuration.pieceSize = Integer.parseInt(sc.nextLine().trim());
-//
-//        if (Configuration.fileSize%Configuration.pieceSize == 0) {
-//            Configuration.numPieces = Configuration.fileSize/Configuration.pieceSize;
-//        } else {
-//            Configuration.numPieces = Configuration.fileSize/Configuration.pieceSize + 1;
-//        }
-//
-//        sc.close();
-
+    	String str1;
+        try
+        {
+        	BufferedReader buffread1 = new BufferedReader(new FileReader(new File("common.cfg")));
+        	for (str1 = buffread1.readLine(); str1!= null ; str1 = buffread1.readLine())
+        	{
+        		String[] tokens = str1.split(" ");
+        		if (tokens[0].equalsIgnoreCase("NumberOfPreferredNeighbors"))
+        		{
+        			CommonProperties.NumberOfPreferredNeighbors= Integer.parseInt(tokens[1]);
+        		}
+        		else if (tokens[0].equalsIgnoreCase("UnchokingInterval"))
+        		{
+        			CommonProperties.UnchokingInterval= Integer.parseInt(tokens[1]);
+        		}
+        		else if (tokens[0].equalsIgnoreCase("OptimisticUnchokingInterval"))
+        		{
+        			CommonProperties.OptimisticUnchokingInterval= Integer.parseInt(tokens[1]);
+        		}
+        		else if (tokens[0].equalsIgnoreCase("FileName"))
+        		{
+        			CommonProperties.FileName= tokens[1];
+        		}
+        		else if (tokens[0].equalsIgnoreCase("FileSize"))
+        		{
+        			CommonProperties.FileSize = Integer.parseInt(tokens[1]);
+        		}
+        		else if (tokens[0].equalsIgnoreCase("PieceSize"))
+        		{
+        			CommonProperties.PieceSize= Integer.parseInt(tokens[1]);
+        		}
+        		else
+        		{
+        			
+        		}
+        	}
+        }
+        catch (IOException e)
+        {
+            System.out.println("File I/O error!");
+        }
         //Get peers information from the peersInformation file
     	String str;
         try
