@@ -14,6 +14,7 @@ public class Configuration {
     public static String fileName;
     public static int fileSize;
     public static int pieceSize;
+    public static int numPieces;
 
     //PeerInformation
 //    private final ArrayList<Integer> IDs;
@@ -29,9 +30,9 @@ public class Configuration {
 
         //Get the common configuration
         Scanner sc= new Scanner(new FileReader(commonConfig));
-        this.numberOfPreferredNeighbors = Integer.parseInt(sc.nextLine().trim());
+        this.numOfPreferredNeighbors = Integer.parseInt(sc.nextLine().trim());
         this.unchokingInterval = Integer.parseInt(sc.nextLine().trim());
-        this.optimisticUnchokingInterval = Integer.parseInt(sc.nextLine().trim());
+        this.optUnchokingInterval = Integer.parseInt(sc.nextLine().trim());
         this.fileName = sc.nextLine().trim();
         this.fileSize = Integer.parseInt(sc.nextLine().trim());
         this.pieceSize = Integer.parseInt(sc.nextLine().trim());
@@ -45,7 +46,7 @@ public class Configuration {
         sc.close();
 
         //Get peers information from the peersInformation file
-        Scanner sc2 = new Scanner(new FileReader(peersInformation));
+        Scanner sc2 = new Scanner(new FileReader(peersInfoConfig));
 
         IDs = new ArrayList<Integer>();
         addresses = new ArrayList<String>();
@@ -70,10 +71,10 @@ public class Configuration {
             } else {
                 this.flags.add(false);
             }
-            count++;
+//            count++;
         }
 
-        this.numPeers = count;
+//        this.numPeers = count;
 
     }
 }
