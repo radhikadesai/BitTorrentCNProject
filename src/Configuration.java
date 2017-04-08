@@ -16,84 +16,16 @@ public class Configuration {
     public static int pieceSize;
 
     //PeerInformation
-    private final ArrayList<Integer> IDs;
-    private final ArrayList<String> addresses;
-    private final ArrayList<Integer> downloadPorts;
-    private final ArrayList<Boolean> flags;
-    private final int numPeers;
-    private final ArrayList<Integer> uploadPorts;
-    private final ArrayList<Integer> havePorts;
+//    private final ArrayList<Integer> IDs;
+//    private final ArrayList<String> addresses;
+//    private final ArrayList<Integer> downloadPorts;
+//    private final ArrayList<Boolean> flags;
+//    private final int numPeers;
+//    private final ArrayList<Integer> uploadPorts;
+//    private final ArrayList<Integer> havePorts;
+    public static ArrayList<PeerInformation> peers;
 
-
-    public int getNumPieces() {
-        return numPieces;
-    }
-
-
-    public int getPieceSize() {
-        return pieceSize;
-    }
-
-    public int getFileSize() {
-        return fileSize;
-    }
-
-    public int getnumberOfPreferredNeighbors() {
-        return numberOfPreferredNeighbors;
-    }
-
-
-    public int getUnchokingInterval() {
-        return unchokingInterval;
-    }
-
-
-    public int getOptimisticUnchokingInterval() {
-        return optimisticUnchokingInterval;
-    }
-
-
-    public String getFileName() {
-        return fileName;
-    }
-
-
-    public int getNumPeers() {
-        return numPeers;
-    }
-
-
-    public int getDownloadPort(int index) {
-        return downloadPorts.get(index);
-    }
-
-
-    public int getUploadPort(int index) {
-        return uploadPorts.get(index);
-    }
-
-
-    public int getHavePort(int index) {
-        return havePorts.get(index);
-    }
-
-
-    public ArrayList<Integer> getIDs() {
-        return IDs;
-    }
-
-
-    public ArrayList<String> getAddresses() {
-        return addresses;
-    }
-
-
-    public ArrayList<Boolean> getFlags() {
-        return flags;
-    }
-
-
-    public Config(String commonConfig, String peersInformation) throws FileNotFoundException {
+    public Configuration(String commonConfig, String peersInfoConfig) throws FileNotFoundException {
 
         //Get the common configuration
         Scanner sc= new Scanner(new FileReader(commonConfig));
