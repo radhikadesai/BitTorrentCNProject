@@ -1,5 +1,4 @@
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
@@ -62,7 +61,7 @@ public class Configuration {
         	for (str = buffread.readLine(); str!= null ; str = buffread.readLine())
         	{
         		String[] tokens = str.split(" ");
-        		Peer temp = new Peer();
+        		PeerInformation temp = new PeerInformation();
         		temp.peerID = Integer.parseInt(tokens[0]);
         		temp.address = tokens[1];
         		temp.port= Integer.parseInt(tokens[2]);
@@ -75,6 +74,7 @@ public class Configuration {
 //                    System.out.println(token);
 //                }
         	}
+
         }
         catch (IOException e)
         {
