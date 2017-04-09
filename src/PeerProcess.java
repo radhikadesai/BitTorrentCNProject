@@ -1,7 +1,7 @@
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.net.SocketTimeoutException;
+import java.net.Socket;
 
 /**
  * Created by radhikadesai on 08/04/2017.
@@ -66,5 +66,36 @@ public class PeerProcess {
                 }
             }
         }
+    }
+}
+class ListeningThread implements Runnable{
+
+    private ServerSocket listeningSocket;
+    private String peerID;
+    Socket remoteSocket;
+    Thread sendingThread;
+
+    public ListeningThread(ServerSocket socket, String peerID)
+    {
+        this.listeningSocket = socket;
+        this.peerID = peerID;
+    }
+    @Override
+    public void run() {
+        //Keep listening for remote connections
+        while (true){
+            try {
+                remoteSocket = listeningSocket.accept();
+                //spawn a sending thread for each incoming connection
+//                sendingThread = new Thread(new RemotePeerHandler(remoteSocket,0,peerID));
+                // Log connection is established
+//                PeerProcess.sendingThread.add(sendingThread);
+                sendingThread.start();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 }
