@@ -40,13 +40,16 @@ public class PeerProcess {
             for (PeerInformation p : Configuration.peers) {
                 if (peerProcess.myIndex > p.getIndex()) {
                     //SendingThread for each client before me
+                    Thread sendingThread = new Thread(new SendingThread(p.getAddress(), p.getPort(), myProcessPeerID));
+//                    receivingThread.add(sendingThread);
+                    sendingThread.start();
                 }
             }
         }
         //Listening thread for peerProcess
         try {
             peerProcess.listeningSocket = new ServerSocket(peerProcess.listeningPort);
-//            peerProcess.listeningThread = new Thread();
+            peerProcess.listeningThread = new Thread(new ListeningThread(peerProcess.listeningSocket, myProcessPeerID));
             peerProcess.listeningThread.start();
         }
         catch(IOException ex){
@@ -71,11 +74,11 @@ public class PeerProcess {
 class ListeningThread implements Runnable{
 
     private ServerSocket listeningSocket;
-    private String peerID;
+    private int peerID;
     Socket remoteSocket;
     Thread sendingThread;
 
-    public ListeningThread(ServerSocket socket, String peerID)
+    public ListeningThread(ServerSocket socket, int peerID)
     {
         this.listeningSocket = socket;
         this.peerID = peerID;
@@ -87,7 +90,7 @@ class ListeningThread implements Runnable{
             try {
                 remoteSocket = listeningSocket.accept();
                 //spawn a sending thread for each incoming connection
-//                sendingThread = new Thread(new RemotePeerHandler(remoteSocket,0,peerID));
+                sendingThread = new Thread(new SendingThread(remoteSocket,peerID));
                 // Log connection is established
 //                PeerProcess.sendingThread.add(sendingThread);
                 sendingThread.start();
