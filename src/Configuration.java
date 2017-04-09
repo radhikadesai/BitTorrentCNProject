@@ -58,6 +58,7 @@ public class Configuration {
         try
         {
         	BufferedReader buffread = new BufferedReader(new FileReader(new File("PeerInfo.cfg")));
+            int i=0;
         	for (str = buffread.readLine(); str!= null ; str = buffread.readLine())
         	{
         		String[] tokens = str.split(" ");
@@ -66,7 +67,9 @@ public class Configuration {
         		temp.address = tokens[1];
         		temp.port= Integer.parseInt(tokens[2]);
         		temp.isFirstPeer= Integer.parseInt(tokens[3]);
+                temp.setIndex(i);
         		peers.add(temp);
+                i++;
 //        		System.out.println("Number of tokens in line " + ": " + tokens.length);
 //                System.out.println("The tokens are:");
 //                for (String token : tokens)
