@@ -16,7 +16,7 @@ public class PeerProcess {
 
     public static void main(String[] args) throws FileNotFoundException {
         boolean isFirstPeer =false;
-        //Initialize Configuration
+        //Initializkee Configuration
         Configuration config = new Configuration("",""); //give paths of the common and peerInfo config files
         //Initialize peerProcess
         PeerProcess peerProcess = new PeerProcess();
@@ -102,3 +102,5 @@ class ListeningThread implements Runnable{
 
     }
 }
+
+
