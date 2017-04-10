@@ -17,7 +17,7 @@ public class PeerProcess {
     public static void main(String[] args) throws FileNotFoundException {
         boolean isFirstPeer =false;
         //Initializkee Configuration
-        Configuration config = new Configuration("common.cfg","PeerInfo.cfg"); //give paths of the common and peerInfo config files
+        Configuration config = new Configuration("/Users/radhikadesai/Desktop/BitTorrentCNProject/src/common.cfg","/Users/radhikadesai/Desktop/BitTorrentCNProject/src/PeerInfo.cfg"); //give paths of the common and peerInfo config files
         //Initialize peerProcess
         PeerProcess peerProcess = new PeerProcess();
         myProcessPeerID = Integer.parseInt(args[0]);
@@ -51,6 +51,7 @@ public class PeerProcess {
         }
         //Listening thread for peerProcess
         try {
+            System.out.println("Spawning listening Thread : ");
             peerProcess.listeningSocket = new ServerSocket(peerProcess.listeningPort);
             peerProcess.listeningThread = new Thread(new ListeningThread(peerProcess.listeningSocket, myProcessPeerID));
             peerProcess.listeningThread.start();
