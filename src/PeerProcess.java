@@ -37,8 +37,11 @@ public class PeerProcess {
         if(!isFirstPeer) {
             //Create Empty file
             //emptyFile();
+            System.out.println("Inside the loop for not first peer!  ");
             for (PeerInformation p : Configuration.peers) {
+                System.out.println("Iterating through the peer list");
                 if (peerProcess.myIndex > p.getIndex()) {
+                    System.out.println("Spawning sending threads for peer  "+ p.getPeerID());
                     //SendingThread for each client before me
                     Thread sendingThread = new Thread(new SendingThread(p.getAddress(), p.getPort(), myProcessPeerID));
 //                    receivingThread.add(sendingThread);

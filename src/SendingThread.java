@@ -75,12 +75,16 @@ public class SendingThread implements Runnable {
 
     @Override
     public void run() {
+        System.out.println("Started Sending thread for peer : "+ myPeerId);
         boolean handshakeSuccess = sendHandshake();
 
         if(handshakeSuccess){
+            System.out.print("Handshake Successful! ");
             //peerProcess.showLog(ownPeerId + " HANDSHAKE has been sent...");
         }
         else {
+            System.out.print("Handshake Failed! ");
+
 //            peerProcess.showLog(ownPeerId + " HANDSHAKE has been failed...");
             System.exit(0);
         }
@@ -91,7 +95,9 @@ public class SendingThread implements Runnable {
                 //Read handshake message
                 inputStream.read(message);
                 Handshake.receiveMessage(message);
-                if(Handshake.received_header.equals(Handshake.HEADER)){
+//                System.out.print("");
+                if(Handshake.received_header.equals(Handshake.HEADER)){ //VerifyHandshake
+                    System.out.println("Handhshake Header is same! ");
                     remotePeerId = Integer.parseInt(Handshake.received_peerID);
                     // Log
                     //peerID to socket mapping
@@ -107,7 +113,7 @@ public class SendingThread implements Runnable {
         else{
             //set remotePeer state to 2
         }
-        
+
 
     }
 }
