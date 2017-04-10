@@ -17,7 +17,7 @@ public class PeerProcess {
     public static void main(String[] args) throws FileNotFoundException {
         boolean isFirstPeer =false;
         //Initializkee Configuration
-        Configuration config = new Configuration("",""); //give paths of the common and peerInfo config files
+        Configuration config = new Configuration("common.cfg","PeerInfo.cfg"); //give paths of the common and peerInfo config files
         //Initialize peerProcess
         PeerProcess peerProcess = new PeerProcess();
         myProcessPeerID = Integer.parseInt(args[0]);

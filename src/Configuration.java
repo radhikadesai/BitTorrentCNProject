@@ -15,7 +15,7 @@ public class Configuration {
     	String str1;
         try
         {
-        	BufferedReader buffread1 = new BufferedReader(new FileReader(new File("common.cfg")));
+        	BufferedReader buffread1 = new BufferedReader(new FileReader(new File(commonConfig)));
         	for (str1 = buffread1.readLine(); str1!= null ; str1 = buffread1.readLine())
         	{
         		String[] tokens = str1.split(" ");
@@ -57,7 +57,7 @@ public class Configuration {
     	String str;
         try
         {
-        	BufferedReader buffread = new BufferedReader(new FileReader(new File("PeerInfo.cfg")));
+        	BufferedReader buffread = new BufferedReader(new FileReader(new File(peersInfoConfig)));
             int i=0;
         	for (str = buffread.readLine(); str!= null ; str = buffread.readLine())
         	{
