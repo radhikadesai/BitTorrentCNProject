@@ -75,7 +75,7 @@ public class SendingThread implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("Started Sending thread for peer : "+ myPeerId);
+        System.out.println("Started Sending thread for my peer ");
         boolean handshakeSuccess = sendHandshake();
 
         if(handshakeSuccess){
@@ -99,6 +99,7 @@ public class SendingThread implements Runnable {
                 if(Handshake.received_header.equals(Handshake.HEADER)){ //VerifyHandshake
                     System.out.println("Handhshake Header is same! ");
                     remotePeerId = Integer.parseInt(Handshake.received_peerID);
+                    System.out.print("Connection established with : "+remotePeerId);
                     // Log
                     //peerID to socket mapping
                     break;
