@@ -7,12 +7,13 @@ public class BitField {
 	public static byte[] header;
 	public static byte[] messageType;
 	public static byte[] messagePayload;
-	
-	public BitField(CommonCfg config)
+
+
+	public BitField()
 	{
 		header = new byte[headerLen];
 		messageType = new byte[1];
-		noOfPieces = (int)Math.ceil((double)config.FileSize/(double)config.PieceSize);
+		noOfPieces = (int)Math.ceil((double)Configuration.CommonProperties.FileSize/(double)Configuration.CommonProperties.PieceSize);
 		messagePayload = new byte[noOfPieces/8];
 	}
 	
