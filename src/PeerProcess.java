@@ -13,6 +13,7 @@ public class PeerProcess {
     public int myIndex;
     public ServerSocket listeningSocket;
     public Thread listeningThread;
+    public static BitField myBitField;
 
     public static void main(String[] args) throws FileNotFoundException {
         boolean isFirstPeer =false;
@@ -34,6 +35,9 @@ public class PeerProcess {
                 }
             }
         }
+        myBitField=new BitField();
+//        myBitField.initOwnBitfield(peerID, isFirstPeer?1:0);
+
         if(!isFirstPeer) {
             //Create Empty file
             //emptyFile();
