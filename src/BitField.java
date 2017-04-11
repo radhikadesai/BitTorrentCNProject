@@ -219,5 +219,31 @@ public class BitField {
 		return payload;
 		
 	}
+	
+	public static BitField receiveMessage(byte[] r)
+	{
+		BitField receivedBitField = new BitField();
+		int size= r.length;
+		int i=0;
+		while(i < size)
+		{
+			int count = 7;
+			while(count >=0)
+			{
+				int x = 1 << count;
+				if(i * 8 + (8-count-1) < receivedBitField.noOfPieces)
+				{
+					if((r[i] & (x)) != 0)
+						receivedBitField.pieces[i * 8 + (8-count-1)].hasPiece = 1;
+					else
+						receivedBitField.pieces[i * 8 + (8-count-1)].hasPiece = 0;
+				}
+				count--;
+			}
+			i++;
+		}
+		
+		return receivedBitField;
+	}
 
 }
