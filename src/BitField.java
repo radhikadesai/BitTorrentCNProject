@@ -141,6 +141,47 @@ public class BitField {
 		}
 	}
 	
+	public synchronized boolean isDifferent (BitField other)
+	{
+		int otherSize= other.noOfPieces;
+		for (int i = 0; i < otherSize; i++) {
+			if (other.pieces[i].hasPiece ==1 && this.pieces[i].hasPiece==0)
+			{
+				return true;
+			} else
+				continue;
+		}
+		return false;
+	}
+	
+	public synchronized int whatsDifferent (BitField other)
+	{
+		if(this.noOfPieces>=other.noOfPieces)
+		{
+			int i=0;
+			while(i< other.noOfPieces)
+			{
+				if(other.pieces[i].hasPiece==1 && this.pieces[i].hasPiece==0)
+				{
+					return i;
+				}
+			}
+		}
+		else
+		{
+			int i=0;
+			while(i< this.noOfPieces)
+			{
+				if(other.pieces[i].hasPiece==1 && this.pieces[i].hasPiece==0)
+				{
+					return i;
+				}
+			}
+		}
+		return -1;
+	}
+	
+	
 	public byte[] sendMessage()
 	{
 		msgLen = (noOfPieces/8)+1;
