@@ -2,6 +2,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Queue;
 
 /**
  * Created by radhikadesai on 08/04/2017.
@@ -14,11 +18,12 @@ public class PeerProcess {
     public ServerSocket listeningSocket;
     public Thread listeningThread;
     public static BitField myBitField;
+    public static Queue<ActualMessageWithPeer> Q = new LinkedList<ActualMessageWithPeer>();
 
     public static void main(String[] args) throws FileNotFoundException {
         boolean isFirstPeer =false;
         //Initializkee Configuration
-        Configuration config = new Configuration("/Users/radhikadesai/Desktop/BitTorrentCNProject/src/common.cfg","/Users/radhikadesai/Desktop/BitTorrentCNProject/src/PeerInfo.cfg"); //give paths of the common and peerInfo config files
+        Configuration config = new Configuration("/common.cfg","/PeerInfo.cfg"); //give paths of the common and peerInfo config files
         //Initialize peerProcess
         PeerProcess peerProcess = new PeerProcess();
         myProcessPeerID = Integer.parseInt(args[0]);
@@ -65,7 +70,19 @@ public class PeerProcess {
         }
 
     }
-
+    public static synchronized void addToQ(ActualMessageWithPeer msg)
+    {
+        Q.add(msg);
+    }
+    public static synchronized ActualMessageWithPeer removeFromQ()
+    {
+        ActualMessageWithPeer msg = null;
+        if(!Q.isEmpty())
+        {
+            msg = Q.remove();
+        }
+        return msg;
+    }
     private static void initializePreferredNeighbors() {
         int i=0;
         for (PeerInformation p : Configuration.peers){
