@@ -10,8 +10,12 @@ import java.util.*;
 
 public class PreferedNeighbors extends TimerTask
 
+
 {
+	public static volatile Hashtable<String, PeerInformation> preferedNeighbors = new Hashtable<String, PeerInformation>();
 	
+	int myProcessPeerID;
+
 	
 	public static void readAgain_peerinfo()
 	{
@@ -26,6 +30,7 @@ public class PreferedNeighbors extends TimerTask
         		PeerInformation temp = new PeerInformation();
         		temp.peerID = Integer.parseInt(tokens[0]);
         		temp.isFirstPeer= Integer.parseInt(tokens[3]);
+        		int jk=0;
         		for(PeerInformation p :Configuration.peers)
         		{
         			if(p.getPeerID()==temp.peerID)
@@ -35,12 +40,14 @@ public class PreferedNeighbors extends TimerTask
         					p.isCompleted = 1;
         					p.isInterested = 0;
         					p.isCh= 0;
+        					Configuration.peers.set(jk, p);
         				}
         			}
         			
-        				
+        		jk++;		
         		}
         	}
+        	buffread.close();
         }
         catch (IOException e)
         {
@@ -54,91 +61,125 @@ public class PreferedNeighbors extends TimerTask
 			
 			readAgain_peerinfo();
 			
-			int countInterested = 0;
-			
-			Enumeration<String> keys = remotePeerInfoHash.keys();
-			while(keys.hasMoreElements())
+			int Interestedcount = 0;
+			int jk=0;
+			for(PeerInformation p :Configuration.peers)
 			{
-				String key = (String)keys.nextElement();
-				PeerInformation pref = remotePeerInfoHash.get(key);
-				
-				if(key.equals(peerID))continue;
-				
-				if (pref.isCompleted == 0 && pref.isHandShaked == 1)
+				if(p.getPeerID()==myProcessPeerID)
+		
+					continue;
+				if (p.isCompleted == 0 && p.isHandShaked == 1)
 				{
-					countInterested++;
-				} 
-				else if(pref.isCompleted == 1)
+					Interestedcount++;
+				}
+			
+			//Enumeration<String>  = remotePeerInfoHash.keys();
+			//while(keys.hasMoreElements())
+			//{
+			//	String key = (String)keys.nextElement();
+			//	PeerInformation pref = remotePeerInfoHash.get(key);
+				
+				
+				
+				//if (pref.isCompleted == 0 && pref.isHandShaked == 1)
+				//{
+				//	countInterested++;
+				//} 
+				else if(p.isCompleted == 1)
 				{
 					try
 					{
-						preferedNeighbors.remove(key);
+						preferedNeighbors.remove(Integer.toString(p.getPeerID()));
 					}
 					catch (Exception e) {
 					}
 				}
 			}
+			
 			String strPref = "";
-			if(countInterested > CommonProperties.numOfPreferredNeighbr)
+			
+			if(Interestedcount > Configuration.CommonProperties.NumberOfPreferredNeighbors)
 			{
 				if(!preferedNeighbors.isEmpty())
 					preferedNeighbors.clear();
 						
-				List <RemotePeerInfo> pv = new ArrayList <RemotePeerInfo>(remotePeerInfoHash.values());
-				Collections.sort(pv, new PeerDataRateComparator(false));
+				ArrayList <PeerInformation> pv = new ArrayList <PeerInformation>();
+				Collections.copy(pv,Configuration.peers);
+				Collections.sort(pv, new DataRComparitor(false));
 				int count = 0;
 				for (int i = 0; i < pv.size(); i++) 
 				{
-					if (count > CommonProperties.numOfPreferredNeighbr - 1)
+					if (count > Configuration.CommonProperties.NumberOfPreferredNeighbors - 1)
 						break;
-					if(pv.get(i).isHandShaked == 1 && !pv.get(i).peerId.equals(peerID) 
-							&& remotePeerInfoHash.get(pv.get(i).peerId).isCompleted == 0)
+		
+					int ijk=0;
+					for(PeerInformation p :Configuration.peers)
 					{
-						remotePeerInfoHash.get(pv.get(i).peerId).isPreferredNeighbor = 1;
-						preferedNeighbors.put(pv.get(i).peerId, remotePeerInfoHash.get(pv.get(i).peerId));
+						if(p.getPeerID()== pv.get(i).getPeerID())
+					
+						if(pv.get(i).isHandShaked == 1 && !(pv.get(i).getPeerID()==(myProcessPeerID))
+							&& p.isCompleted == 0)
+							{
+								p.isPNeighbor = 1;
+	        					Configuration.peers.set(ijk, p);
+
+						preferedNeighbors.put(Integer.toString(pv.get(i).getPeerID()), p);
 						
 						count++;
 						
-						strPref = strPref + pv.get(i).peerId + ", ";
+						strPref = strPref + pv.get(i).getPeerID() + ", ";
 						//peerProcess.showLog(peerProcess.peerID + " Selected preferred neighbor is " + pv.get(i).peerId + " data rate - " + pv.get(i).dataRate);
 						
-						if (remotePeerInfoHash.get(pv.get(i).peerId).isChoked == 1)
+						if (p.isCh == 1)
 						{
-							sendUnChoke(peerProcess.peerIDToSocketMap.get(pv.get(i).peerId), pv.get(i).peerId);
-							peerProcess.remotePeerInfoHash.get(pv.get(i).peerId).isChoked = 0;
-							sendHave(peerProcess.peerIDToSocketMap.get(pv.get(i).peerId), pv.get(i).peerId);
-							peerProcess.remotePeerInfoHash.get(pv.get(i).peerId).state = 3;
+							sendUnChoke(peerProcess.peerIDToSocketMap.get(pv.get(i).getPeerID()), pv.get(i).getPeerID());
+							p.isCh = 0;
+							sendHave(peerProcess.peerIDToSocketMap.get(pv.get(i).getPeerID()), pv.get(i).getPeerID());
+							p.peerrelation= 3;
+        					Configuration.peers.set(ijk, p);
+
 						}
 						
 						
 					}
+						ijk++;
 				}
+			}
 			}
 			else
 			{
-				keys = remotePeerInfoHash.keys();
-				while(keys.hasMoreElements())
+				int ijk=0;
+				for(PeerInformation p :Configuration.peers)
 				{
-					String key = (String)keys.nextElement();
 					
-					PeerInformation prefered = remotePeerInfoHash.get(key);
-					if(key.equals(peerID)) continue;
+				//}
+				//keys = remotePeerInfoHash.keys();
+				//while(keys.hasMoreElements())
+				//{
+				//	String key = (String)keys.nextElement();
+					
+					PeerInformation prefered = p;
+					
+					if(p.getPeerID()==(myProcessPeerID))
+						continue;
 					
 					if (prefered.isCompleted == 0 && prefered.isHandShaked == 1)
 					{
-						if(!preferedNeighbors.containsKey(key))
+						if(!preferedNeighbors.containsKey(Integer.toString(p.getPeerID())))
 						{
 							
-							strPref = strPref + key + ", ";
-							preferedNeighbors.put(key, remotePeerInfoHash.get(key));
-							remotePeerInfoHash.get(key).isPreferredNeighbor = 1;
+							strPref = strPref + Integer.toString(p.getPeerID()) + ", ";
+							preferedNeighbors.put(Integer.toString(p.getPeerID()), p);
+							p.isPNeighbor = 1;
+							Configuration.peers.set(ijk, p);
 						}
-						if (prefered.isChoked == 1)
+						if (prefered.isCh == 1)
 						{
 							sendUnChoke(peerProcess.peerIDToSocketMap.get(key), key);
-							peerProcess.remotePeerInfoHash.get(key).isChoked = 0;
+							p.isCh = 0;
 							sendHave(peerProcess.peerIDToSocketMap.get(key), key);
-							peerProcess.remotePeerInfoHash.get(key).state = 3;
+							p.peerrelation = 3;
+							Configuration.peers.set(ijk, p);
 						}
 						
 					} 
