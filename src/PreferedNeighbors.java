@@ -1,53 +1,58 @@
 
-/*
- * import java.io.*;
-import java.io.FileReader;
+import java.io.*;
 import java.util.*;
 
-*/
 
 /**
  * @author dhruv
  *
  */
-/*
+
 public class PreferedNeighbors extends TimerTask
 
 {
-	public static volatile Hashtable<String, PeerInformation> preferedNeighbors = new Hashtable<String, PeerInformation>();
-	public static volatile Hashtable<String, PeerInformation> remotePeerInfoHash = new Hashtable<String, PeerInforamtion>();
 	
-	public static void readPeerInfoAgain()
+	
+	public static void readAgain_peerinfo()
 	{
-		try 
-		{
-			String st;
-			BufferedReader in = new BufferedReader(new FileReader("PeerInfo.cfg"));
-			while ((st = in.readLine()) != null)
-			{
-				String[]args = st.trim().split("\\s+");
-				String peerID = args[0];
-				int isCompleted = Integer.parseInt(args[3]);
-				
-				if(isCompleted == 1)
-				{
-					remotePeerInfoHash.get(peerID).isCompleted = 1;
-					remotePeerInfoHash.get(peerID).isInterested = 0;
-					remotePeerInfoHash.get(peerID).isChoked = 0;
-				}
-			}
-			in.close();
-		}
-		catch (Exception e)
-			{
-			showLog(peerID + e.toString());
-			}
-		}
+	
+        String str;
+		try
+        {
+			BufferedReader buffread = new BufferedReader(new FileReader(new File("PeerInfo.cfg")));
+        	for (str = buffread.readLine(); str!= null ; str = buffread.readLine())
+        	{
+        		String[] tokens = str.split(" ");
+        		PeerInformation temp = new PeerInformation();
+        		temp.peerID = Integer.parseInt(tokens[0]);
+        		temp.isFirstPeer= Integer.parseInt(tokens[3]);
+        		for(PeerInformation p :Configuration.peers)
+        		{
+        			if(p.getPeerID()==temp.peerID)
+        			{
+        				if(temp.isFirstPeer == 1)
+        				{
+        					p.isCompleted = 1;
+        					p.isInterested = 0;
+        					p.isCh= 0;
+        				}
+        			}
+        			
+        				
+        		}
+        	}
+        }
+        catch (IOException e)
+        {
+            System.out.println("File I/O error!");
+        }
+        
+    	}
 		public void run() 
 		{
 			
 			
-			readPeerInfoAgain();
+			readAgain_peerinfo();
 			
 			int countInterested = 0;
 			
@@ -55,7 +60,7 @@ public class PreferedNeighbors extends TimerTask
 			while(keys.hasMoreElements())
 			{
 				String key = (String)keys.nextElement();
-				RemotePeerInfo pref = remotePeerInfoHash.get(key);
+				PeerInformation pref = remotePeerInfoHash.get(key);
 				
 				if(key.equals(peerID))continue;
 				
@@ -140,9 +145,8 @@ public class PreferedNeighbors extends TimerTask
 					
 				}
 			}
-			// LOG 3: Preferred Neighbors 
+			//LOG 3: Preferred Neighbors 
 			//if (strPref != "")
 				//peerProcess.showLog(peerProcess.peerID + " has selected the preferred neighbors - " + strPref);
 		}
 }
-*/
