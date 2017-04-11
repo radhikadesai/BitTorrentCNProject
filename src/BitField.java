@@ -184,11 +184,40 @@ public class BitField {
 	
 	public byte[] sendMessage()
 	{
-		msgLen = (noOfPieces/8)+1;
-		header = (Integer.toString(msgLen)).getBytes();
-		messageType = "5".getBytes();
+//		msgLen = (noOfPieces/8)+1;
+//		header = (Integer.toString(msgLen)).getBytes();
+//		messageType = "5".getBytes();
+		int sizeInBytes = this.noOfPieces/ 8;
+		if (noOfPieces % 8 != 0)
+			sizeInBytes = sizeInBytes + 1;
+		byte[] payload = new byte[sizeInBytes];
+		int temp = 0, count = 0;
+		int i=1;
+		while (i <= this.noOfPieces)
+		{
+			int x = this.pieces[i-1].hasPiece;
+			temp = temp << 1;
+			if (x == 1) 
+			{
+				temp = temp + 1;
+			} else
+				temp = temp + 0;
+
+			if (i % 8 == 0 && i!=0) {
+				payload[count] = (byte) temp;
+				count++;
+				temp = 0;
+			}
+			i++;
+		}
+		if ((i-1) % 8 != 0) 
+		{
+			int shift = ((noOfPieces) - (noOfPieces / 8) * 8);
+			temp = temp << (8 - shift);
+			payload[count] = (byte) temp;
+		}
+		return payload;
 		
-		return null;
 	}
 
 }
