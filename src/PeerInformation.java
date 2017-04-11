@@ -15,7 +15,7 @@ public class PeerInformation implements Comparable<PeerInformation> {
 	public int isOUNeighbor = 0;
 	public int isCh = 1;
 	public BitField bitField;
-	public int state = -1;
+	public int peerrelation = -1;
 	public int peerIndex;
 	public Date st;
 	public Date ft;
