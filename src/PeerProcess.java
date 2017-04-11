@@ -8,7 +8,7 @@ import java.net.Socket;
  */
 public class PeerProcess {
 
-    public static int myProcessPeerID;
+	public static int myProcessPeerID;
     public int listeningPort;
     public int myIndex;
     public ServerSocket listeningSocket;
