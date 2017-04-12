@@ -583,7 +583,7 @@ class ListeningThread implements Runnable{
                 //spawn a sending thread for each incoming connection
                 sendingThread = new Thread(new SendingThread(remoteSocket,peerID));
                 // Log connection is established
-                PeerProcess.consoleLog(peerID + " Connection is established");
+                PeerProcess.consoleLog(PeerProcess.myProcessPeerID + " is connected from Peer "+ peerID);
                 PeerProcess.sndingThread.add(sendingThread);
                 sendingThread.start();
 
