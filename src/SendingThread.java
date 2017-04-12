@@ -24,7 +24,7 @@ public class SendingThread implements Runnable {
     public SendingThread(Socket peerSocket, int ownPeerID) {
 
         this.peerSocket = peerSocket;
-        this.connectionType = 0;
+        this.connectionType = PASSIVE;
         this.myPeerId = ownPeerID;
         try
         {
@@ -40,7 +40,7 @@ public class SendingThread implements Runnable {
     {
         try
         {
-            this.connectionType = 1;
+            this.connectionType = ACTIVE;
             this.myPeerId = ownPeerID;
             //PeerProcess.showLog(myPeerId + " Receiving Port = " + port + " Address = "+ add);
             this.peerSocket = new Socket(add, port);
@@ -84,7 +84,6 @@ public class SendingThread implements Runnable {
         }
         else {
             System.out.print("Handshake Failed! ");
-
 //            peerProcess.showLog(ownPeerId + " HANDSHAKE has been failed...");
             System.exit(0);
         }
@@ -95,11 +94,10 @@ public class SendingThread implements Runnable {
                 //Read handshake message
                 inputStream.read(message);
                 Handshake.receiveMessage(message);
-//                System.out.print("");
                 if(Handshake.received_header.equals(Handshake.HEADER)){ //VerifyHandshake
                     System.out.println("Handhshake Header is same! ");
                     remotePeerId = Integer.parseInt(Handshake.received_peerID);
-                    System.out.print("Connection established with : "+remotePeerId);
+                    System.out.println("Connection established with : "+remotePeerId);
                     // Log
                     //peerID to socket mapping
                     break;
@@ -108,11 +106,77 @@ public class SendingThread implements Runnable {
                 e.printStackTrace();
             }
         }
+
         if(this.connectionType==ACTIVE){
             //Send bitfield and change remotepeer state to 8
+            System.out.println("This is an active connection");
+            ActualMessage msg = new ActualMessage(ActualMessage.BITFIELD, PeerProcess.myBitField.sendMessage());
+            byte[] msgStream = msg.serialize();
+            try {
+                System.out.println("Writing the message stream : "+ msgStream[0]);
+                outputStream.write(msgStream);
+            } catch (IOException e) {
+                System.out.println("Exception in sending bitfield");
+                e.printStackTrace();
+            }
+//            peerProcess.remotePeerInfoHash.get(remotePeerId).state = 8;
         }
         else{
             //set remotePeer state to 2
+        }
+        //Keep receiving messages and put them in the message Q
+        while(true){
+            try {
+                byte[] dataWithoutPayload = new byte[ActualMessage.MSG_LEN + 1];
+                int headerlen =  inputStream.read(dataWithoutPayload);
+                if(headerlen == -1)
+                    break;
+                byte[] len = new byte[ActualMessage.MSG_LEN];
+                System.arraycopy(dataWithoutPayload, 0, len, 0, ActualMessage.MSG_LEN);
+                byte type = dataWithoutPayload[ActualMessage.MSG_LEN];
+
+                ActualMessage message = new ActualMessage();
+                message.setMessageLen(len);
+                message.setMessageType(type);
+                int messageLengthInt = ActualMessage.byteArrayToInt(len,0);
+                System.out.println("Message length is : "+messageLengthInt);
+                //has payload
+                ActualMessageWithPeer msgWithPeer;
+                if(messageLengthInt==1){
+                    System.out.println("Received message has no payload and message type is : "+ type);
+                    msgWithPeer = new ActualMessageWithPeer(this.remotePeerId,message);
+                    PeerProcess.addToQ(msgWithPeer);
+                }
+                else if(messageLengthInt>1) {
+                    System.out.println("Received message has  payload and type is : "+type);
+                    int bytesAlreadyRead = 0;
+                    int bytesRead;
+                    byte[] dataWithPayload = new byte[messageLengthInt-1];
+                    while(bytesAlreadyRead < messageLengthInt-1)
+                    {
+                        bytesRead = inputStream.read(dataWithPayload, bytesAlreadyRead, messageLengthInt-1-bytesAlreadyRead);
+                        if(bytesRead == -1)
+                            return;
+                        bytesAlreadyRead += bytesRead;
+                    }
+
+                    byte []dataBuffWithPayload = new byte [messageLengthInt+ActualMessage.MSG_LEN];
+                    System.arraycopy(dataWithoutPayload, 0, dataBuffWithPayload, 0,ActualMessage.MSG_LEN + 1);
+                    System.arraycopy(dataWithPayload, 0, dataBuffWithPayload, ActualMessage.MSG_LEN + 1, dataWithPayload.length);
+                    ActualMessage dataMsgWithPayload = ActualMessage.deserialize(dataBuffWithPayload);
+                    msgWithPeer = new ActualMessageWithPeer(this.remotePeerId,dataMsgWithPayload);
+                    PeerProcess.addToQ(msgWithPeer);
+                    dataWithPayload = null;
+                    dataBuffWithPayload = null;
+                    bytesAlreadyRead = 0;
+                    bytesRead = 0;
+                }
+            } catch (IOException e) {
+//                peerProcess.showLog(myPeerId + " run exception: " + e);
+                e.printStackTrace();
+            }
+
+
         }
 
 

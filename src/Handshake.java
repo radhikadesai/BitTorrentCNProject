@@ -39,7 +39,7 @@ public class Handshake {
 	public static int verifyHandshake(int peer)
 	{
 		int verified = 0;
-		if (received_peerID == Integer.toString(peer) && received_header.equals(HEADER))
+		if (received_peerID.equals(Integer.toString(peer)) && received_header.equals(HEADER))
 			verified =1;
 		return verified;
 	}
