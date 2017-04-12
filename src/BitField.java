@@ -52,7 +52,7 @@ public class BitField {
 		}
 	}
 	
-	public synchronized void update(String pid, Piece p)
+	public synchronized void update(int rId, Piece p)
 	{
 		try
 		{
@@ -69,7 +69,7 @@ public class BitField {
 				f.seek(offset);
 				f.write(byteWrite);
 				this.pieces[Piece.pieceIndex].hasPiece=1;
-				this.pieces[Piece.pieceIndex].fromWho= pid;
+				this.pieces[Piece.pieceIndex].fromWho= rId;
 				f.close();
 				
 			}
