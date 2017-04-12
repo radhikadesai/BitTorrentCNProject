@@ -55,6 +55,7 @@ public class ActualMessage {
         this.messageLen =ByteBuffer.allocate(4).putInt(1).array();
 
     }
+
     public byte[] serialize()
     {
         byte[] msgStream = null;
@@ -116,6 +117,7 @@ public class ActualMessage {
                 System.arraycopy(msgStream, MSG_LEN + 1,payload, 0, msgStream.length - MSG_LEN - 1);
                 msg.setPayload(payload);
             }
+            payload=null;
         }
         catch (Exception e)
         {

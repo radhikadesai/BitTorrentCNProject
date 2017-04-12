@@ -23,6 +23,7 @@ public class BitField {
 		messageType = new byte[1];
 		noOfPieces = (int)Math.ceil((double)Configuration.CommonProperties.FileSize/(double)Configuration.CommonProperties.PieceSize);
 		messagePayload = new byte[noOfPieces/8];
+		this.pieces = new Piece[noOfPieces];
 		for (int i = 0; i < this.noOfPieces; i++)
 			this.pieces[i] = new Piece();
 	}

@@ -230,7 +230,7 @@ public class PeerProcess {
     public static void main(String[] args) throws FileNotFoundException {
         boolean isFirstPeer =false;
         //Initializkee Configuration
-        Configuration config = new Configuration("/common.cfg","/PeerInfo.cfg"); //give paths of the common and peerInfo config files
+        Configuration config = new Configuration("/Users/radhikadesai/Desktop/BitTorrentCNProject/src/common.cfg","/Users/radhikadesai/Desktop/BitTorrentCNProject/src/PeerInfo.cfg"); //give paths of the common and peerInfo config files
         //Initialize peerProcess
         PeerProcess peerProcess = new PeerProcess();
         myProcessPeerID = Integer.parseInt(args[0]);
@@ -253,9 +253,7 @@ public class PeerProcess {
         if(!isFirstPeer) {
             //Create Empty file
             //emptyFile();
-            System.out.println("Inside the loop for not first peer!  ");
             for (PeerInformation p : Configuration.peers) {
-                System.out.println("Iterating through the peer list");
                 if (peerProcess.myIndex > p.getIndex()) {
                     System.out.println("Spawning sending threads for peer  "+ p.getPeerID());
                     //SendingThread for each client before me
