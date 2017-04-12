@@ -18,6 +18,17 @@ public class Piece {
 		fromWho= null;
 	}
 	
+	public static Piece receive(byte []payload)
+	{
+		Piece piece = new Piece();
+		byte[] byteIndex = new byte[4];
+		System.arraycopy(payload, 0, byteIndex, 0, 4);
+		piece.pieceIndex = ActualMessage.byteArrayToInt(byteIndex, 0);
+		piece.actualPiece = new byte[payload.length-4];
+		System.arraycopy(payload, 4, piece.actualPiece, 0, payload.length-4);		
+		return piece;
+	}
+	
 	public int isThere()
 	{
 		return hasPiece;
