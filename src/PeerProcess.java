@@ -395,7 +395,7 @@ public static class UnChokedNeighbors extends TimerTask
     public static void main(String[] args) throws IOException {
         boolean isFirstPeer = false;
         //Initializkee Configuration
-        Configuration config = new Configuration("/Users/radhikadesai/Desktop/BitTorrentCNProject/src/common.cfg", "/Users/radhikadesai/Desktop/BitTorrentCNProject/src/PeerInfo.cfg"); //give paths of the common and peerInfo config files
+        Configuration config = new Configuration("Common.cfg", "PeerInfo.cfg"); //give paths of the common and peerInfo config files
         //Initialize peerProcess
         PeerProcess peerProcess = new PeerProcess();
         myProcessPeerID = Integer.parseInt(args[0]);
