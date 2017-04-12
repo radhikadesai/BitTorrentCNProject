@@ -61,11 +61,11 @@ public class MessageQueueProcessor implements Runnable{
 			rId = msgWithPeer.getfromPeerID();
 			peerRelation = util(rId).peerrelation;
 			
-			if(msgType.equals(DATA_MSG_HAVE) && peerRelation != 14)
+			if(msgType==ActualMessage.HAVE && peerRelation != 14)
 			{
 				// LOG 7: TODO HAVE MESSAGE FOR WHICH PIECE ??
-				peerProcess.showLog(peerProcess.peerID + " receieved HAVE message from Peer " + rPeerId); 
-				if(isInterested(d, rPeerId))
+				//peerProcess.showLog(peerProcess.peerID + " receieved HAVE message from Peer " + rPeerId); 
+				if(isInterested(msg, rId))
 				{
 					//peerProcess.showLog(peerProcess.peerID + " is interested in Peer " + rPeerId);
 					sendInterested(peerProcess.peerIDToSocketMap.get(rPeerId), rPeerId);
