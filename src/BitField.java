@@ -28,7 +28,7 @@ public class BitField {
 			this.pieces[i] = new Piece();
 	}
 	
-	public void initial(String pid, int hasFile)
+	public void initial(int pid, int hasFile)
 	{
 		if(hasFile==1)
 		{
@@ -52,6 +52,16 @@ public class BitField {
 		}
 	}
 	
+	public int ownpieces()
+	{
+		int count = 0;
+		for (int i = 0; i < this.noOfPieces; i++)
+			if (this.pieces[i].hasPiece == 1) 
+				count++;
+
+		return count; 
+	}
+	
 	public synchronized void update(int rId, Piece p)
 	{
 		try
@@ -65,12 +75,19 @@ public class BitField {
 				byte[] byteWrite;
 	
 				byteWrite = Piece.actualPiece;
+				//PeerProcess.consoleLog((PeerProcess.myProcessPeerID + " has downloaded the piece " + Piece.pieceIndex + "from peer " + rId));
 				
 				f.seek(offset);
 				f.write(byteWrite);
 				this.pieces[Piece.pieceIndex].hasPiece=1;
-				this.pieces[Piece.pieceIndex].fromWho= rId;
+				this.pieces[Piece.pieceIndex].fromWho=rId;
 				f.close();
+				
+				
+				
+				PeerProcess.consoleLog((PeerProcess.myProcessPeerID + " has downloaded the piece " + Piece.pieceIndex
+						+ "from peer " + rId +". Now the number of pieces it has is "+ PeerProcess.myBitField.ownpieces()));
+				
 				
 			}
 			int i = 0; 
@@ -96,6 +113,7 @@ public class BitField {
 					}
 				}
 				updatePeerCfgFile(PeerProcess.myProcessPeerID, 1);
+				PeerProcess.consoleLog((PeerProcess.myProcessPeerID + " has downloaded the complete file"));
 			}
 		}
 		catch (Exception e)

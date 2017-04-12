@@ -3,7 +3,7 @@ public class Piece {
 	public static int pieceIndex;
 	public static byte[] actualPiece;
 	public static int hasPiece=0;
-	public static String fromWho;
+	public static int fromWho;
 	
 	public Piece(int pieceIndex, byte[] actualPiece)
 	{
@@ -15,7 +15,7 @@ public class Piece {
 	{
 		pieceIndex=-1;
 		actualPiece=new byte[Configuration.CommonProperties.PieceSize];
-		fromWho= null;
+		fromWho= 0;
 	}
 	
 	public static Piece receive(byte []payload)
