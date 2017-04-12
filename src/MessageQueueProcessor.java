@@ -117,16 +117,17 @@ public class MessageQueueProcessor implements Runnable{
 			if(msgType==ActualMessage.HAVE && peerRelation != 14)
 			{
 				// LOG 7: TODO HAVE MESSAGE FOR WHICH PIECE ??
-				//peerProcess.showLog(peerProcess.peerID + " receieved HAVE message from Peer " + rPeerId); 
+				PeerProcess.consoleLog(PeerProcess.myProcessPeerID + " receieved the 'have' message from Peer " + rId + " for the piece " + "ff"); 
 				if(isInterested(msg, rId))
 				{
-					//peerProcess.showLog(peerProcess.peerID + " is interested in Peer " + rPeerId);
+					//PeerProcess.consoleLog((PeerProcess.myProcessPeerID + " received the ‘interested’ message from " + rId));
 					sendInterested(PeerProcess.peerNsocket.get(rId), rId);
 					setUtil(rId,9,"state");
 				}	
 				else
 				{
-					//peerProcess.showLog(peerProcess.peerID + "is not interested " + rPeerId);
+					//PeerProcess.consoleLog((PeerProcess.myProcessPeerID + " received the ‘not interested’ message from " + rId));
+					//peerProcess.showLog(peerProcess.peerID + "not interesteded " + rPeerId);
 					sendNotInterested(PeerProcess.peerNsocket.get(rId), rId);
 					setUtil(rId,13,"state");
 				}
@@ -140,6 +141,8 @@ public class MessageQueueProcessor implements Runnable{
 			else if(msgType==ActualMessage.NOT_INTERESTED && peerRelation == 3)
 			{
 				// LOG 9:
+				PeerProcess.consoleLog((PeerProcess.myProcessPeerID + " received the ‘not interested’ message from " + rId));
+
 				//peerProcess.showLog(peerProcess.peerID + " receieved a NOT INTERESTED message from Peer " + rPeerId);
 				setUtil(rId,0,"isInterested");
 				setUtil(rId, 5, "state");
@@ -147,6 +150,8 @@ public class MessageQueueProcessor implements Runnable{
 			}
 			else if(msgType==ActualMessage.INTERESTED && peerRelation == 3){	
 				// LOG 8:
+				PeerProcess.consoleLog((PeerProcess.myProcessPeerID + " received the ‘interested’ message from " + rId));
+
 				//peerProcess.showLog(peerProcess.peerID + " receieved an INTERESTED message from Peer " + rPeerId);
 				setUtil(rId,1,"isInterested");
 				setUtil(rId,1,"isHandshaked");
@@ -196,11 +201,15 @@ public class MessageQueueProcessor implements Runnable{
 			}
 			else if(msgType==ActualMessage.CHOKE && peerRelation == 9)
 			{
+				PeerProcess.consoleLog((PeerProcess.myProcessPeerID + " is choked by " + rId));
+
 				//peerProcess.showLog(peerProcess.peerID + " is CHOKED by Peer " + rPeerId);
 				setUtil(rId,14,"state");
 			}
 			else if(msgType==ActualMessage.UNCHOKE && peerRelation == 9)
 			{
+				PeerProcess.consoleLog((PeerProcess.myProcessPeerID + " is unchoked by " + rId));
+
 				//peerProcess.showLog(peerProcess.peerID + " is UNCHOKED by Peer " + rPeerId);
 				int firstdiff = PeerProcess.myBitField.whatsDifferent(util(rId).bitField);
 				if(firstdiff != -1)
@@ -257,11 +266,15 @@ public class MessageQueueProcessor implements Runnable{
 			}
 			else if(msgType==ActualMessage.CHOKE && peerRelation == 11)
 			{
+				PeerProcess.consoleLog((PeerProcess.myProcessPeerID + " is choked by " + rId));
+
 				//peerProcess.showLog(peerProcess.peerID + " is CHOKED by Peer " + rPeerId);
 				setUtil(rId,14,"state");
 			}
 			else if(msgType==ActualMessage.UNCHOKE && peerRelation == 14)
 			{
+				PeerProcess.consoleLog((PeerProcess.myProcessPeerID + " is unchoked by " + rId));
+
 				//peerProcess.showLog(peerProcess.peerID + " is UNCHOKED by Peer " + rPeerId);
 				setUtil(rId,14,"state");
 			}	
