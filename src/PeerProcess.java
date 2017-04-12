@@ -418,7 +418,7 @@ public static class UnChokedNeighbors extends TimerTask
             }
             //My own bitfield is initialized
             myBitField = new BitField();
-            myBitField.initial(Integer.toString(myProcessPeerID), isFirstPeer ? 1 : 0);
+            myBitField.initial(myProcessPeerID, isFirstPeer ? 1 : 0);
             //Message Queue processor thread is started
             Thread messageProcessor = new Thread(new MessageQueueProcessor(Integer.toString(myProcessPeerID)));
             messageProcessor.start();
