@@ -335,11 +335,12 @@ public static class UnChokedNeighbors extends TimerTask
 						p.isOUNeighbor=1;
 						unchokedNeighbors.put(cp.getPeerID(),p);
 						Configuration.peers.set(pq, p);
+						consoleLog(myProcessPeerID + " has the optimistically unchoked neighbor " + p.getPeerID());
 					}
 				pq++;	
 				}
 				// LOG 4:
-				//PeerProcess.showLog(PeerProcess.peerID + " has the optimistically unchoked neighbor " + p.peerId);
+				
 				
 				//remotePeerInfoHash.get(cp.getPeerID()).isOptUnchokedNeighbor = 1;
 				
