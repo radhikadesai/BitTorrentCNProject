@@ -33,7 +33,30 @@ public class PeerProcess {
 	
 	public static volatile Hashtable<Integer, PeerInformation> unchokedNeighbors = new Hashtable<Integer, PeerInformation>();
 	
-    public static void readAgain_peerinfo()
+	public static void createEmptyFile()
+	{
+		
+		try {
+			File dir = new File(Integer.toString((myProcessPeerID)));
+			dir.mkdir();
+
+			File newfile = new File(Integer.toString(myProcessPeerID), Configuration.CommonProperties.FileName);
+			OutputStream os = new FileOutputStream(newfile, true);
+			byte b = 0;
+			
+			//showLog(peerID + " Size of file = " + CommonProperties.fileSize);
+			
+			for (int i = 0; i < Configuration.CommonProperties.FileSize; i++)
+				os.write(b);
+			os.close();
+		} 
+		catch (Exception e) {
+			//showLog(myProcessPeerID + " ERROR in creating the file : " + e.getMessage());
+		}
+
+	}
+	
+	public static void readAgain_peerinfo()
 	{
 	
         String str;
