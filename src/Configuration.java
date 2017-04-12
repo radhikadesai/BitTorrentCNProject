@@ -47,7 +47,9 @@ public class Configuration {
         		{
         			
         		}
+        	
         	}
+        	buffread1.close();
         }
         catch (IOException e)
         {
@@ -77,6 +79,7 @@ public class Configuration {
 //                    System.out.println(token);
 //                }
         	}
+        	buffread.close();
 
         }
         catch (IOException e)
