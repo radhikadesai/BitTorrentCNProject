@@ -42,7 +42,7 @@ public class MessageQueueProcessor implements Runnable{
 	
 		while(true)
 		{
-			msgWithPeer  = PeerProcess.removeFromMsgQueue();
+			msgWithPeer  = PeerProcess.removeFromQ();
 			while(msgWithPeer == null)
 			{
 				Thread.currentThread();
@@ -52,7 +52,7 @@ public class MessageQueueProcessor implements Runnable{
 					
 					e.printStackTrace();
 				}
-				msgWithPeer  = PeerProcess.removeFromMsgQueue();
+				msgWithPeer  = PeerProcess.removeFromQ();
 			}
 			
 			msg = msgWithPeer.getMessage();
