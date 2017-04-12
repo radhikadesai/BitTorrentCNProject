@@ -238,7 +238,7 @@ public class PeerProcess {
 	private static void sendUnChoke(Socket socket, String remotePeerID)
 	{
 
-		showLog( myProcessPeerID + " is sending UNCHOKE message to remote Peer " + remotePeerID);
+		//showLog( myProcessPeerID + " is sending UNCHOKE message to remote Peer " + remotePeerID);
 		ActualMessage d = new ActualMessage(ActualMessage.UNCHOKE);
 		byte[] Bytemsg = d.serialize();
 		SendData(socket, Bytemsg);
@@ -247,7 +247,7 @@ public class PeerProcess {
 	private static void sendHave(Socket socket, String remotePeerID)
 	{
 		
-		showLog(myProcessPeerID + " sending HAVE message to Peer " + remotePeerID);
+		//showLog(myProcessPeerID + " sending HAVE message to Peer " + remotePeerID);
 		byte[] encodedBitField = PeerProcess.myBitField.sendMessage();
 		ActualMessage d = new ActualMessage(ActualMessage.HAVE, encodedBitField);
 		SendData(socket,d.serialize());
