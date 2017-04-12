@@ -23,6 +23,8 @@ public class PeerProcess {
     public Thread listeningThread;
     public static BitField myBitField;
    
+	public static volatile Timer tPref;
+	
     public static Queue<ActualMessageWithPeer> Q = new LinkedList<ActualMessageWithPeer>();
 	
     public static volatile Hashtable<Integer, PeerInformation> preferedNeighbors = new Hashtable<Integer, PeerInformation>();
@@ -159,9 +161,9 @@ public class PeerProcess {
     						
     						if (p.isCh == 1)
     						{
-    							//sendUnChoke(PeerProcess.peerNsocket.get(pv.get(i).getPeerID()), pv.get(i).getPeerID());
+    							sendUnChoke(PeerProcess.peerNsocket.get(pv.get(i).getPeerID()), pv.get(i).getPeerID());
     							p.isCh = 0;
-    							//sendHave(PeerProcess.peerNsocket.get(pv.get(i).getPeerID()), pv.get(i).getPeerID());
+    							sendHave(PeerProcess.peerNsocket.get(pv.get(i).getPeerID()), pv.get(i).getPeerID());
     							p.peerrelation= 3;
             					Configuration.peers.set(ijk, p);
 
@@ -202,9 +204,10 @@ public class PeerProcess {
     						}
     						if (prefered.isCh == 1)
     						{
-    							//sendUnChoke(PeerProcess.peerNsocket.get(key), key);
+    							int key = p.getPeerID();
+    							sendUnChoke(PeerProcess.peerNsocket.get(key), key);
     							p.isCh = 0;
-    							//sendHave(PeerProcess.peerNsocket.get(key), key);
+    							sendHave(PeerProcess.peerNsocket.get(key), key);
     							p.peerrelation = 3;
     							Configuration.peers.set(ijk, p);
     						}
@@ -235,7 +238,7 @@ public class PeerProcess {
     
     
 
-	private static void sendUnChoke(Socket socket, String remotePeerID)
+	private static void sendUnChoke(Socket socket, Integer remotePeerID)
 	{
 
 		//showLog( myProcessPeerID + " is sending UNCHOKE message to remote Peer " + remotePeerID);
@@ -244,7 +247,7 @@ public class PeerProcess {
 		SendData(socket, Bytemsg);
 
 	}
-	private static void sendHave(Socket socket, String remotePeerID)
+	private static void sendHave(Socket socket, Integer remotePeerID)
 	{
 		
 		//showLog(myProcessPeerID + " sending HAVE message to Peer " + remotePeerID);
@@ -273,49 +276,78 @@ public class PeerProcess {
 	 * 
 	 * 
 	 */
-//	public static class UnChokedNeighbors extends TimerTask 
-//	{
+public static class UnChokedNeighbors extends TimerTask 
+	{
 
-/*		public void run() 
+	public void run() 
 		{
 			//updates remotePeerInfoHash
+			
 			readAgain_peerinfo();
 			
 			if(!unchokedNeighbors.isEmpty())
 				unchokedNeighbors.clear();
 			
-			Enumeration<String> keys = remotePeerInfoHash.keys();
-			Vector<RemotePeerInfo> peers = new Vector<RemotePeerInfo>();
-			while(keys.hasMoreElements())
+			//Enumeration<String> keys = remotePeerInfoHash.keys();
+			Vector<PeerInformation> peeps = new Vector<PeerInformation>();
+			//while(keys.hasMoreElements())
+			
+			for(PeerInformation p :Configuration.peers)
 			{
-				String key = (String)keys.nextElement();
-				RemotePeerInfo pref = remotePeerInfoHash.get(key);
+				//String key = (String)keys.nextElement();
+				PeerInformation pref = p;
 				
-				if (pref.isChoked == 1 
-						&& !key.equals(peerID) 
+				if (pref.isCh == 1 
+						&& !(p.getPeerID()==(myProcessPeerID)) 
 						&& pref.isCompleted == 0 
 						&& pref.isHandShaked == 1)
-					peers.add(pref);
+					peeps.add(pref);
 			}
 			
 			// Randomize the vector elements 	
-			if (peers.size() > 0)
+			if (peeps.size() > 0)
 			{
-				Collections.shuffle(peers);
-				RemotePeerInfo p = peers.firstElement();
-				
-				remotePeerInfoHash.get(p.peerId).isOptUnchokedNeighbor = 1;
-				unchokedNeighbors.put(p.peerId, remotePeerInfoHash.get(p.peerId));
+				Collections.shuffle(peeps);
+				PeerInformation cp = peeps.firstElement();
+				int pq=0;
+				for(PeerInformation p :Configuration.peers)
+				{
+					if(p.getPeerID()==cp.getPeerID())
+					{
+						p.isOUNeighbor=1;
+						unchokedNeighbors.put(cp.getPeerID(),p);
+						Configuration.peers.set(pq, p);
+					}
+				pq++;	
+				}
 				// LOG 4:
-				peerProcess.showLog(peerProcess.peerID + " has the optimistically unchoked neighbor " + p.peerId);
+				//PeerProcess.showLog(PeerProcess.peerID + " has the optimistically unchoked neighbor " + p.peerId);
 				
-				if (remotePeerInfoHash.get(p.peerId).isChoked == 1)
+				//remotePeerInfoHash.get(cp.getPeerID()).isOptUnchokedNeighbor = 1;
+				
+				int xy=0;
+				for(PeerInformation p :Configuration.peers)
+				{
+					if(p.getPeerID()==cp.getPeerID()&&(p.isCh==1))
+					{
+						p.isCh = 0;
+						sendUnChoke(PeerProcess.peerNsocket.get(cp.getPeerID()), cp.getPeerID());
+						sendHave(PeerProcess.peerNsocket.get(cp.getPeerID()), cp.getPeerID());
+						p.peerrelation = 3;	
+						Configuration.peers.set(xy, p);
+					}
+						
+				xy++;
+					
+				}
+				
+				/*if (remotePeerInfoHash.get(cp.getPeerID()).isChoked == 1)
 				{
 					peerProcess.remotePeerInfoHash.get(p.peerId).isChoked = 0;
 					sendUnChoke(peerProcess.peerIDToSocketMap.get(p.peerId), p.peerId);
 					sendHave(peerProcess.peerIDToSocketMap.get(p.peerId), p.peerId);
 					peerProcess.remotePeerInfoHash.get(p.peerId).state = 3;
-				}
+				}*/
 			}
 			
 		}
@@ -325,25 +357,25 @@ public class PeerProcess {
 
 	public static void startUnChokedNeighbors() 
 	{
-		timerPref = new Timer();
-		timerPref.schedule(new UnChokedNeighbors(),
-				CommonProperties.optUnchokingInterval * 1000 * 0,
-				CommonProperties.optUnchokingInterval * 1000);
+		tPref = new Timer();
+		tPref.schedule(new UnChokedNeighbors(),
+				Configuration.CommonProperties.OptimisticUnchokingInterval * 1000 * 0,
+				Configuration.CommonProperties.OptimisticUnchokingInterval * 1000);
 	}
 
 	public static void stopUnChokedNeighbors() {
-		timerPref.cancel();
+		tPref.cancel();
 	}
 
 	public static void startPreferredNeighbors() {
-		timerPref = new Timer();
-		timerPref.schedule(new PreferedNeighbors(),
-				CommonProperties.unchokingInterval * 1000 * 0,
-				CommonProperties.unchokingInterval * 1000);
+		tPref = new Timer();
+		tPref.schedule(new PreferedNeighbors(),
+				Configuration.CommonProperties.UnchokingInterval * 1000 * 0,
+				Configuration.CommonProperties.UnchokingInterval * 1000);
 	}
 
 	public static void stopPreferredNeighbors() {
-		timerPref.cancel();
+		tPref.cancel();
 	}
 	
 
