@@ -2,6 +2,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -33,6 +34,8 @@ public class PeerProcess {
     public static Hashtable<Integer, Socket> peerNsocket = new Hashtable<Integer, Socket>();
 	
 	public static volatile Hashtable<Integer, PeerInformation> unchokedNeighbors = new Hashtable<Integer, PeerInformation>();
+    public static Vector<Thread> rcvThread = new Vector<Thread>();
+    public static Vector<Thread> sndingThread = new Vector<Thread>();
 	
 	public static void createEmptyFile()
 	{
@@ -389,57 +392,136 @@ public static class UnChokedNeighbors extends TimerTask
 	}
     
     public static void main(String[] args) throws IOException {
-        boolean isFirstPeer =false;
+        boolean isFirstPeer = false;
         //Initializkee Configuration
-        Configuration config = new Configuration("/Users/radhikadesai/Desktop/BitTorrentCNProject/src/common.cfg","/Users/radhikadesai/Desktop/BitTorrentCNProject/src/PeerInfo.cfg"); //give paths of the common and peerInfo config files
+        Configuration config = new Configuration("/Users/radhikadesai/Desktop/BitTorrentCNProject/src/common.cfg", "/Users/radhikadesai/Desktop/BitTorrentCNProject/src/PeerInfo.cfg"); //give paths of the common and peerInfo config files
         //Initialize peerProcess
         PeerProcess peerProcess = new PeerProcess();
         myProcessPeerID = Integer.parseInt(args[0]);
-        //Start Logging
-        try {
-            Logger.initial("log_peer_" + Integer.toString(myProcessPeerID) +".log");
-            consoleLog(Integer.toString(myProcessPeerID)+" is started");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        //Initialize the preferred neighbors
-        initializePreferredNeighbors();
+        try{
+            //Start Logging
+            Logger.initial("log_peer_" + Integer.toString(myProcessPeerID) + ".log");
+            consoleLog(Integer.toString(myProcessPeerID) + " is started");
+            //Initialize the preferred neighbors
+            initializePreferredNeighbors();
 
-        for(PeerInformation p :Configuration.peers){
-            if(p.getPeerID()==myProcessPeerID){
-                peerProcess.listeningPort = p.getPort();
-                peerProcess.myIndex = p.getIndex();
-                if(p.getIsFirstPeer()==1){
-                    isFirstPeer=true;
-                    break;
-                }
-            }
-        }
-        myBitField=new BitField();
-        myBitField.initial(Integer.toString(myProcessPeerID), isFirstPeer?1:0);
-
-        if(!isFirstPeer) {
-            //Create Empty file
-            createEmptyFile();
             for (PeerInformation p : Configuration.peers) {
-                if (peerProcess.myIndex > p.getIndex()) {
-                    System.out.println("Spawning sending threads for peer  "+ p.getPeerID());
-                    //SendingThread for each client before me
-                    Thread sendingThread = new Thread(new SendingThread(p.getAddress(), p.getPort(), myProcessPeerID));
-//                    receivingThread.add(sendingThread);
-                    sendingThread.start();
+                if (p.getPeerID() == myProcessPeerID) {
+                    peerProcess.listeningPort = p.getPort();
+                    peerProcess.myIndex = p.getIndex();
+                    if (p.getIsFirstPeer() == 1) {
+                        isFirstPeer = true;
+                        break;
+                    }
+                }
+            }
+            //My own bitfield is initialized
+            myBitField = new BitField();
+            myBitField.initial(Integer.toString(myProcessPeerID), isFirstPeer ? 1 : 0);
+            //Message Queue processor thread is started
+            Thread messageProcessor = new Thread(new MessageQueueProcessor(Integer.toString(myProcessPeerID)));
+            messageProcessor.start();
+
+            if (!isFirstPeer) {
+                //Create Empty file
+                createEmptyFile();
+                for (PeerInformation p : Configuration.peers) {
+                    if (peerProcess.myIndex > p.getIndex()) {
+                        System.out.println("Spawning sending threads for peer  " + p.getPeerID());
+                        //SendingThread for each client before me
+                        Thread sendingThread = new Thread(new SendingThread(p.getAddress(), p.getPort(), myProcessPeerID));
+                        rcvThread.add(sendingThread);
+                        sendingThread.start();
+                    }
+                }
+            }
+            //Listening thread for peerProcess
+            try {
+                System.out.println("Spawning listening Thread : ");
+                peerProcess.listeningSocket = new ServerSocket(peerProcess.listeningPort);
+                peerProcess.listeningThread = new Thread(new ListeningThread(peerProcess.listeningSocket, myProcessPeerID));
+                peerProcess.listeningThread.start();
+            } catch (SocketTimeoutException tox) {
+                consoleLog(myProcessPeerID + " gets time out exception in Starting the listening thread: " + tox.toString());
+                Logger.end();
+                System.exit(0);
+            } catch (IOException ex) {
+                consoleLog(myProcessPeerID + " gets exception in Starting the listening thread: " + peerProcess.listeningPort + " " + ex.toString());
+                Logger.end();
+                System.exit(0);
+            }
+            startPreferredNeighbors();
+            startUnChokedNeighbors();
+            while (true) {
+                //For program ending
+                boolean haveAllpeersDownloaded = allPeersDownloaded();
+                if (haveAllpeersDownloaded) {
+                    consoleLog("All peers have downloaded the file!");
+                    stopPreferredNeighbors();
+                    stopUnChokedNeighbors();
+
+                    try {
+                        Thread.currentThread();
+                        Thread.sleep(2000);
+                    } catch (InterruptedException ex) {
+                    }
+
+                    if (peerProcess.listeningThread.isAlive())
+                        peerProcess.listeningThread.stop();
+
+                    if (messageProcessor.isAlive())
+                        messageProcessor.stop();
+
+                    for (int i = 0; i < rcvThread.size(); i++)
+                        if (rcvThread.get(i).isAlive())
+                            rcvThread.get(i).stop();
+
+                    for (int i = 0; i < sndingThread.size(); i++)
+                        if (sndingThread.get(i).isAlive())
+                            sndingThread.get(i).stop();
+                    break;
+                } else {
+                    try {
+                        Thread.currentThread();
+                        Thread.sleep(5000);
+                    } catch (InterruptedException ex) {
+                    }
                 }
             }
         }
-        //Listening thread for peerProcess
-        try {
-            System.out.println("Spawning listening Thread : ");
-            peerProcess.listeningSocket = new ServerSocket(peerProcess.listeningPort);
-            peerProcess.listeningThread = new Thread(new ListeningThread(peerProcess.listeningSocket, myProcessPeerID));
-            peerProcess.listeningThread.start();
+        catch(Exception ex)
+        {
+            consoleLog(Integer.toString(myProcessPeerID) + " Exception in ending : " + ex.getMessage() );
         }
-        catch(IOException ex){
+        finally
+        {
+            consoleLog(Integer.toString(myProcessPeerID) + " Peer process is exiting..");
+            Logger.end();
             System.exit(0);
+        }
+    }
+    public static synchronized boolean allPeersDownloaded() {
+        String line;
+        int count = 1;
+        try {
+            BufferedReader in = new BufferedReader(new FileReader(
+                    "PeerInfo.cfg"));
+
+            while ((line = in.readLine()) != null) {
+                count = count
+                        * Integer.parseInt(line.trim().split("\\s+")[3]);
+            }
+            if (count == 0) {
+                in.close();
+                return false;
+            } else {
+                in.close();
+                return true;
+            }
+
+        } catch (Exception e) {
+            consoleLog(e.toString());
+            return false;
         }
 
     }
@@ -501,7 +583,7 @@ class ListeningThread implements Runnable{
                 sendingThread = new Thread(new SendingThread(remoteSocket,peerID));
                 // Log connection is established
                 PeerProcess.consoleLog(peerID + " Connection is established");
-//                PeerProcess.sendingThread.add(sendingThread);
+                PeerProcess.sndingThread.add(sendingThread);
                 sendingThread.start();
 
             } catch (IOException e) {
