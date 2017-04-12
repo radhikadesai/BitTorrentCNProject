@@ -25,11 +25,50 @@ public class PeerProcess {
    
     public static Queue<ActualMessageWithPeer> Q = new LinkedList<ActualMessageWithPeer>();
 	
-    public static volatile Hashtable<String, PeerInformation> preferedNeighbors = new Hashtable<String, PeerInformation>();
+    public static volatile Hashtable<Integer, PeerInformation> preferedNeighbors = new Hashtable<Integer, PeerInformation>();
     
-    public static Hashtable<String, Socket> peerNsocket = new Hashtable<String, Socket>();
+    public static Hashtable<Integer, Socket> peerNsocket = new Hashtable<Integer, Socket>();
 	
-    
+	public static volatile Hashtable<Integer, PeerInformation> unchokedNeighbors = new Hashtable<Integer, PeerInformation>();
+	
+    public static void readAgain_peerinfo()
+	{
+	
+        String str;
+		try
+        {
+			BufferedReader buffread = new BufferedReader(new FileReader(new File("PeerInfo.cfg")));
+        	for (str = buffread.readLine(); str!= null ; str = buffread.readLine())
+        	{
+        		String[] tokens = str.split(" ");
+        		PeerInformation temp = new PeerInformation();
+        		temp.peerID = Integer.parseInt(tokens[0]);
+        		temp.isFirstPeer= Integer.parseInt(tokens[3]);
+        		int jk=0;
+        		for(PeerInformation p :Configuration.peers)
+        		{
+        			if(p.getPeerID()==temp.peerID)
+        			{
+        				if(temp.isFirstPeer == 1)
+        				{
+        					p.isCompleted = 1;
+        					p.isInterested = 0;
+        					p.isCh= 0;
+        					Configuration.peers.set(jk, p);
+        				}
+        			}
+        			
+        		jk++;		
+        		}
+        	}
+        	buffread.close();
+        }
+        catch (IOException e)
+        {
+            System.out.println("File I/O error!");
+        }
+        
+    	}
     
 
 /**
@@ -43,44 +82,6 @@ public class PeerProcess {
     {
     	
     	
-    	public static void readAgain_peerinfo()
-    	{
-    	
-            String str;
-    		try
-            {
-    			BufferedReader buffread = new BufferedReader(new FileReader(new File("PeerInfo.cfg")));
-            	for (str = buffread.readLine(); str!= null ; str = buffread.readLine())
-            	{
-            		String[] tokens = str.split(" ");
-            		PeerInformation temp = new PeerInformation();
-            		temp.peerID = Integer.parseInt(tokens[0]);
-            		temp.isFirstPeer= Integer.parseInt(tokens[3]);
-            		int jk=0;
-            		for(PeerInformation p :Configuration.peers)
-            		{
-            			if(p.getPeerID()==temp.peerID)
-            			{
-            				if(temp.isFirstPeer == 1)
-            				{
-            					p.isCompleted = 1;
-            					p.isInterested = 0;
-            					p.isCh= 0;
-            					Configuration.peers.set(jk, p);
-            				}
-            			}
-            			
-            		jk++;		
-            		}
-            	}
-            	buffread.close();
-            }
-            catch (IOException e)
-            {
-                System.out.println("File I/O error!");
-            }
-            
-        	}
     		public void run() 
     		{
     			
@@ -149,7 +150,7 @@ public class PeerProcess {
     								p.isPNeighbor = 1;
     	        					Configuration.peers.set(ijk, p);
 
-    						preferedNeighbors.put(Integer.toString(pv.get(i).getPeerID()), p);
+    						preferedNeighbors.put(pv.get(i).getPeerID(), p);
     						
     						count++;
     						
@@ -195,7 +196,7 @@ public class PeerProcess {
     						{
     							
     							strPref = strPref + Integer.toString(p.getPeerID()) + ", ";
-    							preferedNeighbors.put(Integer.toString(p.getPeerID()), p);
+    							preferedNeighbors.put(p.getPeerID(), p);
     							p.isPNeighbor = 1;
     							Configuration.peers.set(ijk, p);
     						}
@@ -225,7 +226,141 @@ public class PeerProcess {
     
     
     //aaaaa//
+
     
+    
+    
+    
+    
+    
+    
+
+	private static void sendUnChoke(Socket socket, String remotePeerID)
+	{
+
+		showLog( myProcessPeerID + " is sending UNCHOKE message to remote Peer " + remotePeerID);
+		ActualMessage d = new ActualMessage(ActualMessage.UNCHOKE);
+		byte[] Bytemsg = d.serialize();
+		SendData(socket, Bytemsg);
+
+	}
+	private static void sendHave(Socket socket, String remotePeerID)
+	{
+		
+		showLog(myProcessPeerID + " sending HAVE message to Peer " + remotePeerID);
+		byte[] encodedBitField = PeerProcess.myBitField.sendMessage();
+		ActualMessage d = new ActualMessage(ActualMessage.HAVE, encodedBitField);
+		SendData(socket,d.serialize());
+		
+		encodedBitField = null;
+	}
+	private static int SendData(Socket socket, byte[] encodedBitField) {
+		try {
+		OutputStream out = socket.getOutputStream();
+		out.write(encodedBitField);
+		} catch (IOException e) {
+			
+			e.printStackTrace();
+			return 0;
+		}
+		return 1;
+	}
+
+	/**
+	 * Class that handles the Optimistically unchoked neigbhbors information
+	 * 1. Adding the Optimistically unchoked neighors to the corresponding
+	 * list; here it is taken as the first neighbor which is in choked state
+	 * 
+	 * 
+	 */
+	public static class UnChokedNeighbors extends TimerTask 
+	{
+
+/*		public void run() 
+		{
+			//updates remotePeerInfoHash
+			readAgain_peerinfo();
+			
+			if(!unchokedNeighbors.isEmpty())
+				unchokedNeighbors.clear();
+			
+			Enumeration<String> keys = remotePeerInfoHash.keys();
+			Vector<RemotePeerInfo> peers = new Vector<RemotePeerInfo>();
+			while(keys.hasMoreElements())
+			{
+				String key = (String)keys.nextElement();
+				RemotePeerInfo pref = remotePeerInfoHash.get(key);
+				
+				if (pref.isChoked == 1 
+						&& !key.equals(peerID) 
+						&& pref.isCompleted == 0 
+						&& pref.isHandShaked == 1)
+					peers.add(pref);
+			}
+			
+			// Randomize the vector elements 	
+			if (peers.size() > 0)
+			{
+				Collections.shuffle(peers);
+				RemotePeerInfo p = peers.firstElement();
+				
+				remotePeerInfoHash.get(p.peerId).isOptUnchokedNeighbor = 1;
+				unchokedNeighbors.put(p.peerId, remotePeerInfoHash.get(p.peerId));
+				// LOG 4:
+				peerProcess.showLog(peerProcess.peerID + " has the optimistically unchoked neighbor " + p.peerId);
+				
+				if (remotePeerInfoHash.get(p.peerId).isChoked == 1)
+				{
+					peerProcess.remotePeerInfoHash.get(p.peerId).isChoked = 0;
+					sendUnChoke(peerProcess.peerIDToSocketMap.get(p.peerId), p.peerId);
+					sendHave(peerProcess.peerIDToSocketMap.get(p.peerId), p.peerId);
+					peerProcess.remotePeerInfoHash.get(p.peerId).state = 3;
+				}
+			}
+			
+		}
+
+	}
+
+
+	public static void startUnChokedNeighbors() 
+	{
+		timerPref = new Timer();
+		timerPref.schedule(new UnChokedNeighbors(),
+				CommonProperties.optUnchokingInterval * 1000 * 0,
+				CommonProperties.optUnchokingInterval * 1000);
+	}
+
+	public static void stopUnChokedNeighbors() {
+		timerPref.cancel();
+	}
+
+	public static void startPreferredNeighbors() {
+		timerPref = new Timer();
+		timerPref.schedule(new PreferedNeighbors(),
+				CommonProperties.unchokingInterval * 1000 * 0,
+				CommonProperties.unchokingInterval * 1000);
+	}
+
+	public static void stopPreferredNeighbors() {
+		timerPref.cancel();
+	}
+	
+
+
+	/**
+	 * Generates log message in following format
+	 * [Time]: Peer [peer_ID] [message]
+	 * @param message
+	 */
+		/*
+	public static void showLog(String message)
+	{
+		LogGenerator.writeLog(DateUtil.getTime() + ": Peer " + message);
+		System.out.println(DateUtil.getTime() + ": Peer " + message);
+	}   
+  */  
+    //////bbbbbbb/////
     
     public static void main(String[] args) throws FileNotFoundException {
         boolean isFirstPeer =false;
