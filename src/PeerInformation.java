@@ -21,10 +21,28 @@ public class PeerInformation implements Comparable<PeerInformation> {
 	public Date ft;
 	public int isCompleted = 0;
     public int isHandShaked = 0;
+    public Date start;
+    public Date end;
 
     public int getPeerID() 
     {
         return peerID;
+    }
+
+    public Date getStart() {
+        return start;
+    }
+
+    public void setStart(Date start) {
+        this.start = start;
+    }
+
+    public Date getEnd() {
+        return end;
+    }
+
+    public void setEnd(Date end) {
+        this.end = end;
     }
 
     public void setPeerID(int peerID)
