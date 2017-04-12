@@ -2,6 +2,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -292,13 +293,7 @@ public class PeerProcess {
 		return 1;
 	}
 
-	/**
-	 * Class that handles the Optimistically unchoked neigbhbors information
-	 * 1. Adding the Optimistically unchoked neighors to the corresponding
-	 * list; here it is taken as the first neighbor which is in choked state
-	 * 
-	 * 
-	 */
+
 public static class UnChokedNeighbors extends TimerTask 
 	{
 
@@ -363,14 +358,6 @@ public static class UnChokedNeighbors extends TimerTask
 				xy++;
 					
 				}
-				
-				/*if (remotePeerInfoHash.get(cp.getPeerID()).isChoked == 1)
-				{
-					peerProcess.remotePeerInfoHash.get(p.peerId).isChoked = 0;
-					sendUnChoke(peerProcess.peerIDToSocketMap.get(p.peerId), p.peerId);
-					sendHave(peerProcess.peerIDToSocketMap.get(p.peerId), p.peerId);
-					peerProcess.remotePeerInfoHash.get(p.peerId).state = 3;
-				}*/
 			}
 			
 		}
@@ -400,30 +387,21 @@ public static class UnChokedNeighbors extends TimerTask
 	public static void stopPreferredNeighbors() {
 		tPref.cancel();
 	}
-	
-
-
-	/**
-	 * Generates log message in following format
-	 * [Time]: Peer [peer_ID] [message]
-	 * @param message
-	 */
-		/*
-	public static void showLog(String message)
-	{
-		LogGenerator.writeLog(DateUtil.getTime() + ": Peer " + message);
-		System.out.println(DateUtil.getTime() + ": Peer " + message);
-	}   
-  */  
-    //////bbbbbbb/////
     
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) throws IOException {
         boolean isFirstPeer =false;
         //Initializkee Configuration
         Configuration config = new Configuration("/Users/radhikadesai/Desktop/BitTorrentCNProject/src/common.cfg","/Users/radhikadesai/Desktop/BitTorrentCNProject/src/PeerInfo.cfg"); //give paths of the common and peerInfo config files
         //Initialize peerProcess
         PeerProcess peerProcess = new PeerProcess();
         myProcessPeerID = Integer.parseInt(args[0]);
+        //Start Logging
+        try {
+            Logger.initial("log_peer_" + Integer.toString(myProcessPeerID) +".log");
+            consoleLog(Integer.toString(myProcessPeerID)+" is started");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         //Initialize the preferred neighbors
         initializePreferredNeighbors();
 
@@ -438,11 +416,11 @@ public static class UnChokedNeighbors extends TimerTask
             }
         }
         myBitField=new BitField();
-//        myBitField.initOwnBitfield(peerID, isFirstPeer?1:0);
+        myBitField.initial(Integer.toString(myProcessPeerID), isFirstPeer?1:0);
 
         if(!isFirstPeer) {
             //Create Empty file
-            //emptyFile();
+            createEmptyFile();
             for (PeerInformation p : Configuration.peers) {
                 if (peerProcess.myIndex > p.getIndex()) {
                     System.out.println("Spawning sending threads for peer  "+ p.getPeerID());
@@ -478,6 +456,16 @@ public static class UnChokedNeighbors extends TimerTask
         }
         return msg;
     }
+    public static String getTime() {
+        Date d = new Date();
+        return d.toString();
+
+    }
+    public static void consoleLog(String message)
+    {
+        Logger.log(getTime() + ": Peer " + message);
+        System.out.println(getTime() + ": Peer " + message);
+    }
     private static void initializePreferredNeighbors() {
         int i=0;
         for (PeerInformation p : Configuration.peers){
@@ -512,6 +500,7 @@ class ListeningThread implements Runnable{
                 //spawn a sending thread for each incoming connection
                 sendingThread = new Thread(new SendingThread(remoteSocket,peerID));
                 // Log connection is established
+                PeerProcess.consoleLog(peerID + " Connection is established");
 //                PeerProcess.sendingThread.add(sendingThread);
                 sendingThread.start();
 

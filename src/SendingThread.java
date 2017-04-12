@@ -100,13 +100,14 @@ public class SendingThread implements Runnable {
                     System.out.println("Connection established with : "+remotePeerId);
                     // Log
                     //peerID to socket mapping
+                    PeerProcess.peerNsocket.put(remotePeerId,this.peerSocket);
                     break;
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-
+        PeerInformation peer = MessageQueueProcessor.util(remotePeerId);
         if(this.connectionType==ACTIVE){
             //Send bitfield and change remotepeer state to 8
             System.out.println("This is an active connection");
@@ -119,10 +120,11 @@ public class SendingThread implements Runnable {
                 System.out.println("Exception in sending bitfield");
                 e.printStackTrace();
             }
-//            peerProcess.remotePeerInfoHash.get(remotePeerId).state = 8;
+            peer.peerrelation=8;
         }
         else{
             //set remotePeer state to 2
+            peer.peerrelation=2;
         }
         //Keep receiving messages and put them in the message Q
         while(true){
