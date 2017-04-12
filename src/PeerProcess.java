@@ -273,8 +273,8 @@ public class PeerProcess {
 	 * 
 	 * 
 	 */
-	public static class UnChokedNeighbors extends TimerTask 
-	{
+//	public static class UnChokedNeighbors extends TimerTask 
+//	{
 
 /*		public void run() 
 		{
