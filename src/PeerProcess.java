@@ -70,17 +70,16 @@ public class PeerProcess {
         	for (str = buffread.readLine(); str!= null ; str = buffread.readLine())
         	{
         		String[] tokens = str.split(" ");
-        		PeerInformation temp = new PeerInformation();
-        		temp.peerID = Integer.parseInt(tokens[0]);
-        		temp.isFirstPeer= Integer.parseInt(tokens[3]);
+        		int peerID = Integer.parseInt(tokens[0]);
+        		int isCompleted= Integer.parseInt(tokens[3]);
         		int jk=0;
         		for(PeerInformation p :Configuration.peers)
         		{
-        			if(p.getPeerID()==temp.peerID)
+        			if(p.getPeerID()==peerID)
         			{
-        				if(temp.isFirstPeer == 1)
+        				if(isCompleted == 1)
         				{
-							System.out.println("Peer "+temp.getPeerID()+ " has completed download");
+							System.out.println("Peer "+peerID+ " has completed download");
         					p.isCompleted = 1;
         					p.isInterested = 0;
         					p.isCh= 0;
