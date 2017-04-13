@@ -6,7 +6,7 @@ public class ActualMessageWithPeer {
     private ActualMessage message;
 
     public ActualMessageWithPeer(int fromPeerID, ActualMessage message) {
-        fromPeerID = fromPeerID;
+        this.fromPeerID = fromPeerID;
         this.message = message;
     }
 
@@ -15,7 +15,7 @@ public class ActualMessageWithPeer {
     }
 
     public void setfromPeerID(int fromPeerID) {
-        fromPeerID = fromPeerID;
+        this.fromPeerID = fromPeerID;
     }
 
     public ActualMessage getMessage() {

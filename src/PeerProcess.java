@@ -80,6 +80,7 @@ public class PeerProcess {
         			{
         				if(temp.isFirstPeer == 1)
         				{
+							System.out.println("Peer "+temp.getPeerID()+ " has completed download");
         					p.isCompleted = 1;
         					p.isInterested = 0;
         					p.isCh= 0;
@@ -122,30 +123,18 @@ public class PeerProcess {
     			for(PeerInformation p :Configuration.peers)
     			{
     				if(p.getPeerID()==myProcessPeerID)
-    		
     					continue;
     				if (p.isCompleted == 0 && p.isHandShaked == 1)
     				{
+						System.out.println("Peer "+p.getPeerID()+" is not completed yet");
     					Interestedcount++;
     				}
-    			
-    			//Enumeration<String>  = remotePeerInfoHash.keys();
-    			//while(keys.hasMoreElements())
-    			//{
-    			//	String key = (String)keys.nextElement();
-    			//	PeerInformation pref = remotePeerInfoHash.get(key);
-    				
-    				
-    				
-    				//if (pref.isCompleted == 0 && pref.isHandShaked == 1)
-    				//{
-    				//	countInterested++;
-    				//} 
     				else if(p.isCompleted == 1)
     				{
     					try
     					{
-    						preferedNeighbors.remove(Integer.toString(p.getPeerID()));
+							System.out.println("Peer "+p.getPeerID()+" is completed ");
+							preferedNeighbors.remove(Integer.toString(p.getPeerID()));
     					}
     					catch (Exception e) {
     					}
@@ -156,6 +145,7 @@ public class PeerProcess {
     			
     			if(Interestedcount > Configuration.CommonProperties.NumberOfPreferredNeighbors)
     			{
+					System.out.println("Interested count is greater than numberof pref neighbors");
     				if(!preferedNeighbors.isEmpty())
     					preferedNeighbors.clear();
     						
@@ -395,7 +385,7 @@ public static class UnChokedNeighbors extends TimerTask
     public static void main(String[] args) throws IOException {
         boolean isFirstPeer = false;
         //Initializkee Configuration
-        Configuration config = new Configuration("/Users/radhikadesai/Desktop/BitTorrentCNProject/src/common.cfg", "/Users/radhikadesai/Desktop/BitTorrentCNProject/src/PeerInfo.cfg"); //give paths of the common and peerInfo config files
+        Configuration config = new Configuration("Common.cfg", "PeerInfo.cfg"); //give paths of the common and peerInfo config files
         //Initialize peerProcess
         PeerProcess peerProcess = new PeerProcess();
         myProcessPeerID = Integer.parseInt(args[0]);
@@ -426,6 +416,7 @@ public static class UnChokedNeighbors extends TimerTask
             if (!isFirstPeer) {
                 //Create Empty file
                 createEmptyFile();
+				System.out.print("After creating empty file");
                 for (PeerInformation p : Configuration.peers) {
                     if (peerProcess.myIndex > p.getIndex()) {
                         System.out.println("Spawning sending threads for peer  " + p.getPeerID());
@@ -581,9 +572,10 @@ class ListeningThread implements Runnable{
             try {
                 remoteSocket = listeningSocket.accept();
                 //spawn a sending thread for each incoming connection
+				System.out.println("Spawning listening thread");
                 sendingThread = new Thread(new SendingThread(remoteSocket,peerID));
                 // Log connection is established
-                PeerProcess.consoleLog(PeerProcess.myProcessPeerID + " is connected from Peer "+ peerID);
+                PeerProcess.consoleLog(PeerProcess.myProcessPeerID + " is connected from Peer "+ remoteSocket);
                 PeerProcess.sndingThread.add(sendingThread);
                 sendingThread.start();
 

@@ -112,7 +112,7 @@ public class SendingThread implements Runnable {
             ActualMessage msg = new ActualMessage(ActualMessage.BITFIELD, PeerProcess.myBitField.sendMessage());
             byte[] msgStream = msg.serialize();
             try {
-                System.out.println("Writing the message stream : "+ msgStream[0]);
+                System.out.println("Writing the message stream : ");
                 outputStream.write(msgStream);
             } catch (IOException e) {
                 System.out.println("Exception in sending bitfield");

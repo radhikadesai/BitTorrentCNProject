@@ -32,11 +32,14 @@ public class MessageQueueProcessor implements Runnable{
 		for(int i=0;i<Configuration.peers.size();i++)
 		{
 			temp= Configuration.peers.get(i);
+			System.out.println("Peerid"+temp.getPeerID());
 			if (temp.peerID==id)
 			{
+				System.out.println("temp.id = "+ temp.peerrelation);
 				return temp;
 			}
 		}
+		System.out.println("could not find peer");
 		return temp;
 	}
 	
@@ -109,10 +112,13 @@ public class MessageQueueProcessor implements Runnable{
 			}
 			
 			msg = msgWithPeer.getMessage();
+			System.out.println("Message received is : "+ msg);
 			
 			msgType = msg.getMessageType();
 			rId = msgWithPeer.getfromPeerID();
+			System.out.println("rID : "+ rId);
 			peerRelation = util(rId).peerrelation;
+			System.out.println("Peer relation is : "+ peerRelation);
 			
 			if(msgType==ActualMessage.HAVE && peerRelation != 14)
 			{
@@ -120,13 +126,13 @@ public class MessageQueueProcessor implements Runnable{
 				PeerProcess.consoleLog(PeerProcess.myProcessPeerID + " receieved the 'have' message from Peer " + rId + " for the piece " + "ff"); 
 				if(isInterested(msg, rId))
 				{
-					//PeerProcess.consoleLog((PeerProcess.myProcessPeerID + " received the ‘interested’ message from " + rId));
+					//PeerProcess.consoleLog((PeerProcess.myProcessPeerID + " received the ï¿½interestedï¿½ message from " + rId));
 					sendInterested(PeerProcess.peerNsocket.get(rId), rId);
 					setUtil(rId,9,"state");
 				}	
 				else
 				{
-					//PeerProcess.consoleLog((PeerProcess.myProcessPeerID + " received the ‘not interested’ message from " + rId));
+					//PeerProcess.consoleLog((PeerProcess.myProcessPeerID + " received the ï¿½not interestedï¿½ message from " + rId));
 					//peerProcess.showLog(peerProcess.peerID + "not interesteded " + rPeerId);
 					sendNotInterested(PeerProcess.peerNsocket.get(rId), rId);
 					setUtil(rId,13,"state");
@@ -134,6 +140,7 @@ public class MessageQueueProcessor implements Runnable{
 			}
 			else if(msgType==ActualMessage.BITFIELD && peerRelation == 2)
 			{
+				System.out.println("The msg tupe is bitfield and state is 2");
 				//PeerProcess.showLog(peerProcess.peerID + " receieved a BITFIELD message from Peer " + rPeerId);
 				sendBitField(PeerProcess.peerNsocket.get(rId), rId);
 				setUtil(rId,3,"state");
@@ -141,7 +148,7 @@ public class MessageQueueProcessor implements Runnable{
 			else if(msgType==ActualMessage.NOT_INTERESTED && peerRelation == 3)
 			{
 				// LOG 9:
-				PeerProcess.consoleLog((PeerProcess.myProcessPeerID + " received the ‘not interested’ message from " + rId));
+				PeerProcess.consoleLog((PeerProcess.myProcessPeerID + " received the ï¿½not interestedï¿½ message from " + rId));
 
 				//peerProcess.showLog(peerProcess.peerID + " receieved a NOT INTERESTED message from Peer " + rPeerId);
 				setUtil(rId,0,"isInterested");
@@ -150,7 +157,7 @@ public class MessageQueueProcessor implements Runnable{
 			}
 			else if(msgType==ActualMessage.INTERESTED && peerRelation == 3){	
 				// LOG 8:
-				PeerProcess.consoleLog((PeerProcess.myProcessPeerID + " received the ‘interested’ message from " + rId));
+				PeerProcess.consoleLog((PeerProcess.myProcessPeerID + " received the ï¿½interestedï¿½ message from " + rId));
 
 				//peerProcess.showLog(peerProcess.peerID + " receieved an INTERESTED message from Peer " + rPeerId);
 				setUtil(rId,1,"isInterested");
@@ -187,14 +194,16 @@ public class MessageQueueProcessor implements Runnable{
 			else if((msgType==ActualMessage.BITFIELD && peerRelation == 8)
 					|| (msgType==ActualMessage.HAVE && peerRelation == 14))
 			{
-	
+				System.out.println("The msg type is : bitfield and state is 8");
 				if(isInterested(msg,rId))
 				{
+					System.out.println("It is interested");
 					sendInterested(PeerProcess.peerNsocket.get(rId), rId);
 					setUtil(rId,9,"state");
 				}	
 				else
 				{
+					System.out.println("It is not interested");
 					sendNotInterested(PeerProcess.peerNsocket.get(rId), rId);
 					setUtil(rId,13,"state");
 				}
@@ -372,7 +381,10 @@ public class MessageQueueProcessor implements Runnable{
 	private boolean isInterested(ActualMessage msg, int rId) {
 		
 		BitField b = BitField.receiveMessage(msg.getPayload());
-		setUtil(rId,b);		
+		System.out.println("in isinterested : "+b);
+		setUtil(rId,b);
+		System.out.println("");
+
 		//peerProcess.showLog(peerProcess.peerID + " Bitfield of Peer " + rPeerId);
 		if(PeerProcess.myBitField.isDifferent(b))
 			return true;
@@ -395,7 +407,7 @@ public class MessageQueueProcessor implements Runnable{
 	}
 
 	private void sendBitField(Socket socket, int rId) {
-	
+		System.out.println("Sendgin bitfield");
 		//peerProcess.showLog(peerProcess.peerID + " sending BITFIELD message to Peer " + remotePeerID);
 		byte[] encodedBitField = PeerProcess.myBitField.sendMessage();
 
@@ -421,7 +433,6 @@ public class MessageQueueProcessor implements Runnable{
 		OutputStream out = socket.getOutputStream();
 		out.write(encodedBitField);
 		} catch (IOException e) {
-			
 			e.printStackTrace();
 			return 0;
 		}

@@ -32,21 +32,25 @@ public class BitField {
 	{
 		if(hasFile==1)
 		{
+			System.out.println("Has file! Printing pieces");
 			int i=0;
 			while(i<noOfPieces)
 			{
 				this.pieces[i].hasPiece=1;
 				this.pieces[i].fromWho=pid;
+				System.out.println(this.pieces[i].hasPiece);
 				i++;
 			}
 		}
 		else
 		{
 			int i=0;
+			System.out.println("does not Have file! Printing pieces");
 			while(i<noOfPieces)
 			{
 				this.pieces[i].hasPiece=0;
 				this.pieces[i].fromWho=pid;
+				System.out.println(this.pieces[i].hasPiece);
 				i++;
 			}
 		}
@@ -168,6 +172,7 @@ public class BitField {
 		for (int i = 0; i < otherSize; i++) {
 			if (other.pieces[i].hasPiece ==1 && this.pieces[i].hasPiece==0)
 			{
+				System.out.println("Its interested");
 				return true;
 			} else
 				continue;
