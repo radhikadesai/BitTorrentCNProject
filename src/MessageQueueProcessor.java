@@ -324,21 +324,22 @@ public class MessageQueueProcessor implements Runnable{
 		File file = new File(Integer.toString(PeerProcess.myProcessPeerID),Configuration.CommonProperties.FileName);
 		try 
 		{
+			System.out.println("Reached and tryig to open the file");
 			raf = new RandomAccessFile(file,"r");
 			raf.seek(pieceIndex*Configuration.CommonProperties.PieceSize);
 			noBytesRead = raf.read(byteRead, 0, Configuration.CommonProperties.PieceSize);
 		} 
 		catch (IOException e) 
 		{
-			//peerProcess.showLog(peerProcess.peerID + " ERROR in reading the file : " +  e.toString());
+			PeerProcess.consoleLog(PeerProcess.myProcessPeerID + " ERROR in reading the file : " +  e.toString());
 		}
 		if( noBytesRead == 0)
 		{
-			//peerProcess.showLog(peerProcess.peerID + " ERROR :  Zero bytes read from the file !");
+			PeerProcess.consoleLog(PeerProcess.myProcessPeerID + " ERROR :  Zero bytes read from the file !");
 		}
 		else if (noBytesRead < 0)
 		{
-			//peerProcess.showLog(peerProcess.peerID + " ERROR : File could not be read properly.");
+			PeerProcess.consoleLog(PeerProcess.myProcessPeerID + " ERROR : File could not be read properly.");
 		}
 		
 		byte[] buffer = new byte[noBytesRead + 4];
