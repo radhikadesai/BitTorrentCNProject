@@ -188,6 +188,7 @@ public class BitField {
 				{
 					return i;
 				}
+				i++;
 			}
 		}
 		else
@@ -199,6 +200,7 @@ public class BitField {
 				{
 					return i;
 				}
+				i++;
 			}
 		}
 		return -1;
