@@ -32,25 +32,21 @@ public class BitField {
 	{
 		if(hasFile==1)
 		{
-			System.out.println("Has file! Printing pieces");
 			int i=0;
 			while(i<noOfPieces)
 			{
 				this.pieces[i].hasPiece=1;
 				this.pieces[i].fromWho=pid;
-				System.out.println(this.pieces[i].hasPiece);
 				i++;
 			}
 		}
 		else
 		{
 			int i=0;
-			System.out.println("does not Have file! Printing pieces");
 			while(i<noOfPieces)
 			{
 				this.pieces[i].hasPiece=0;
 				this.pieces[i].fromWho=pid;
-				System.out.println(this.pieces[i].hasPiece);
 				i++;
 			}
 		}
@@ -70,7 +66,7 @@ public class BitField {
 	{
 		try
 		{
-			if(PeerProcess.myBitField.pieces[p.pieceIndex].hasPiece!=0)
+			if(PeerProcess.myBitField.pieces[p.pieceIndex].hasPiece==0)
 			{
 				String fileName = Configuration.CommonProperties.FileName;
 				File file = new File(Integer.toString(PeerProcess.myProcessPeerID), fileName);
@@ -102,6 +98,7 @@ public class BitField {
 				}
 				else
 					completed= true;
+				i++;
 			}
 			if(completed == true)
 			{
