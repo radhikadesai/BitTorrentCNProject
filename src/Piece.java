@@ -1,9 +1,9 @@
 
 public class Piece {
-	public static int pieceIndex;
-	public static byte[] actualPiece;
-	public static int hasPiece=0;
-	public static int fromWho;
+	public int pieceIndex;
+	public byte[] actualPiece;
+	public int hasPiece=0;
+	public int fromWho;
 	
 	public Piece(int pieceIndex, byte[] actualPiece)
 	{

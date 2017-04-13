@@ -8,13 +8,13 @@ import java.io.RandomAccessFile;
 
 public class BitField {
 	
-	public static int noOfPieces;
-	public static int msgLen;
-	public static int headerLen = 4;
-	public static byte[] header;
-	public static byte[] messageType;
-	public static byte[] messagePayload;
-	public static Piece pieces[];
+	public int noOfPieces;
+	public int msgLen;
+	public int headerLen = 4;
+	public byte[] header;
+	public byte[] messageType;
+	public byte[] messagePayload;
+	public Piece pieces[];
 
 
 	public BitField()
@@ -70,26 +70,26 @@ public class BitField {
 	{
 		try
 		{
-			if(PeerProcess.myBitField.pieces[Piece.pieceIndex].hasPiece!=0)
+			if(PeerProcess.myBitField.pieces[p.pieceIndex].hasPiece!=0)
 			{
 				String fileName = Configuration.CommonProperties.FileName;
 				File file = new File(Integer.toString(PeerProcess.myProcessPeerID), fileName);
-				int offset = Piece.pieceIndex * Configuration.CommonProperties.PieceSize;
+				int offset = p.pieceIndex * Configuration.CommonProperties.PieceSize;
 				RandomAccessFile f = new RandomAccessFile(file, "rw");
 				byte[] byteWrite;
 	
-				byteWrite = Piece.actualPiece;
+				byteWrite = p.actualPiece;
 				//PeerProcess.consoleLog((PeerProcess.myProcessPeerID + " has downloaded the piece " + Piece.pieceIndex + "from peer " + rId));
 				
 				f.seek(offset);
 				f.write(byteWrite);
-				this.pieces[Piece.pieceIndex].hasPiece=1;
-				this.pieces[Piece.pieceIndex].fromWho=rId;
+				this.pieces[p.pieceIndex].hasPiece=1;
+				this.pieces[p.pieceIndex].fromWho=rId;
 				f.close();
 				
 				
 				
-				PeerProcess.consoleLog((PeerProcess.myProcessPeerID + " has downloaded the piece " + Piece.pieceIndex
+				PeerProcess.consoleLog((PeerProcess.myProcessPeerID + " has downloaded the piece " + p.pieceIndex
 						+ "from peer " + rId +". Now the number of pieces it has is "+ PeerProcess.myBitField.ownpieces()));
 				
 				
